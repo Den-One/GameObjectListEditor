@@ -1,6 +1,19 @@
 # GameObjectListEditor
 GameObjectListEditor (or just ListEditor) is a little document editing application which allows you to create list of objects: choose their names, properties and description.
 
+## Hot Keys
+Hot Key | Desription
+--- | ---
+Ctrl+N | Creates a new empty file
+--- | ---
+Ctrl+O | Opens an earlier created file
+--- | ---
+Ctrl+S | Saves changes of the file and disables undo\redo options
+--- | ---
+Ctrl+Z | Undo changes
+--- | ---
+Ctrl+Y | Redo changes
+
 ## First Look
 
 As you can see, application separates into 2 main parts: Object Types Area and Edit Area.
