@@ -185,7 +185,7 @@ void MainWindow::createFileList() {
     QString fileName = creatorForm->getFileName();
     creatorForm->hide();
 
-    QUrl url = QFileDialog::getExistingDirectoryUrl();
+    QUrl url = QFileDialog::getExistingDirectoryUrl(this, "Create List - Game Object List Editor");
     newFilePath = QDir::cleanPath(url.toString() + "\\" + fileName);
     openFileToEdit = QDir::cleanPath(url.toString() + "\\" + fileName);
 

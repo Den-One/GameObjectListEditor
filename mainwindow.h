@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QLayout>
+#include <QStack>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -77,6 +78,9 @@ private:
     QString newFilePath;
 
     QUrl openFileToEdit;
+
+    QStack<GameObject*> doStack;
+    QStack<GameObject*> undoStack;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,7 +231,7 @@ public:
         createButton_(new QPushButton("Create"))
     {
         windowFrame_->setWindowTitle("New List - Game Object List Editor");
-        windowFrame_->setFixedSize(400, 100);
+        windowFrame_->setFixedSize(355, 100);
         windowFrame_->setLayout(layout_);
         windowFrame_->layout()->addWidget(label_);
         windowFrame_->layout()->addWidget(lineEdit_);
@@ -244,6 +248,8 @@ public:
 
     void show() {
         lineEdit_->clear();
+        lineEdit_->setText(".txt");
+        lineEdit_->setCursorPosition(0);
         windowFrame_->show();
     }
 
