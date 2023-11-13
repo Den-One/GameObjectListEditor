@@ -4,9 +4,13 @@ GameObjectListEditor (or just ListEditor) is a little document editing applicati
 ## Hot Keys
 Hot Key | Desription
 Ctrl+N  | Creates a new empty file.
+---
 Ctrl+O  | Opens an earlier created file.
+---
 Ctrl+S  | Saves opened file changes. Disables undo\redo options.
+---
 Ctrl+Z  | Undo changes.
+---
 Ctrl+Y  | Redo changes.
 
 ## First Look
