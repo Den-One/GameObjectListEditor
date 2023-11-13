@@ -38,6 +38,7 @@ public:
 public slots:
     void saveEditObjectForm();
     void createFileList();
+    void objectTypeButtonClicked();
 
 private slots:
     void on_pushButtonCreateType_clicked();
@@ -72,6 +73,8 @@ private:
 
     QUrl localPath = QCoreApplication::applicationDirPath();
     QString runtimeSaveFileName = "RuntimeSaveFileName.txt";
+
+    QString newFilePath;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

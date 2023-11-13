@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "qforeach.h"
 #include "ui_mainwindow.h"
 
 #include <QGroupBox>
@@ -57,6 +58,24 @@ void MainWindow::on_pushButtonCreateType_clicked() {
         labelList->deleteAll(ui->scrollAreaForEdit->widget()->layout());
         editObjectForm->displayElements(editAreaLayout);
         editAreaState = EditAreaState::DISPAY_OBJECTS_LIST_FILE;
+    }
+}
+
+void MainWindow::objectTypeButtonClicked() {
+    QPushButton* sender = qobject_cast<QPushButton*>(QObject::sender());
+    QString objectName = sender->text();
+
+    QVector<GameObject*> objects = ObjectFileManager{}.readGameObjects(QUrl(":/BaseObjectTypes.txt"));
+    objects += ObjectFileManager{}.readGameObjects(QUrl(QDir::cleanPath(localPath.toString() + "\\" + runtimeSaveFileName)));
+
+    for (auto& object : objects) {
+        if (object->getName() == objectName) {
+            ui->scrollAreaForEdit->widget()->layout()->addWidget(new QLabel(object->getName()));
+            for (auto& property : object->getProperties()) {
+                ui->scrollAreaForEdit->widget()->layout()->addWidget(new QLabel(property->getName() + " " + property->getDescription()));
+            }
+            ui->scrollAreaForEdit->widget()->layout()->addWidget(new QLabel());
+        }
     }
 }
 
@@ -127,6 +146,10 @@ void MainWindow::updateObjectTypesArea() {
         typeButton->deleteLater();
     }
 
+    for (auto& button : objectTypes) {
+        disconnect(button, &QPushButton::clicked, this, &MainWindow::objectTypeButtonClicked);
+    }
+
     objectTypes.clear();
     objectTypes.shrink_to_fit();
 
@@ -144,6 +167,10 @@ void MainWindow::updateObjectTypesArea() {
         objectTypes.push_back(new QPushButton(object->getName()));
         ui->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes.back());
     }
+
+    for (auto& button : objectTypes) {
+        connect(button, &QPushButton::clicked, this, &MainWindow::objectTypeButtonClicked);
+    }
 }
 
 void MainWindow::createFileList() {
@@ -151,4 +178,11 @@ void MainWindow::createFileList() {
     creatorForm->hide();
 
     QUrl url = QFileDialog::getExistingDirectoryUrl();
+    newFilePath = QDir::cleanPath(url.toString() + "\\" + fileName);
+
+    QFile newFile(newFilePath);
+    newFile.open(QIODeviceBase::ReadOnly); // if doesn't exist, creates a new file
+    newFile.close();
+
+    // emit some signal to clear the edit Area
 }
