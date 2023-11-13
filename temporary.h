@@ -224,30 +224,4 @@ public:
     }
 };
 
-
-/*
-    Feature List:
-    * create list
-    * open list
-    *
-    * save list
-    * undo changes
-    * redo changes
-    *
-    * Base Object Types
-    * Player
-    * Wall
-    * Ladder
-    * Rail
-    * Gold
-    * Banana
-    *
-    *
-    * Object Name: [Wall]
-    * Property Name [Icon]
-    * Description: { Image }
-    * Property Name [Material]
-    * Description: { One of the values ... }
-*/
-
 #endif // TEMPORARY_H

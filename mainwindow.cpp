@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(editObjectForm->getSaveButton(), &QPushButton::clicked, this, &MainWindow::saveEditObjectForm);
     connect(creatorForm->getCreateButton(), &QPushButton::clicked, this, &MainWindow::createFileList);
 
+    editObjectForm->addOnLayoutHidden(ui->scrollAreaForEdit->widget()->layout());
+
     setState(ApplicationState::START);
 }
 
@@ -51,18 +53,9 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::on_pushButtonCreateType_clicked() {
-    if (editAreaState == EditAreaState::EDIT_OBJECT_TYPE) {
-        return;
-    }
-    else if (editAreaState == EditAreaState::NONE) {
-        editObjectForm->displayElements(editAreaLayout);
-        editAreaState = EditAreaState::EDIT_OBJECT_TYPE;
-    }
-    else if (editAreaState == EditAreaState::DISPAY_OBJECTS_LIST_FILE) {
-        labelList->deleteAll(ui->scrollAreaForEdit->widget()->layout());
-        editObjectForm->displayElements(editAreaLayout);
-        editAreaState = EditAreaState::DISPAY_OBJECTS_LIST_FILE;
-    }
+    labelList->deleteAll(ui->scrollAreaForEdit->widget()->layout());
+
+    setState(ApplicationState::CREATE_OBJECT);
 }
 
 void MainWindow::objectTypeButtonClicked() {
@@ -98,14 +91,6 @@ void MainWindow::on_actionOpen_List_triggered() {
 
     QVector<GameObject*> objects = ObjectFileManager{}.readGameObjects(url);
 
-    if (editAreaState == EditAreaState::NONE) {
-        editAreaState = EditAreaState::DISPAY_OBJECTS_LIST_FILE;
-    }
-    else if (editAreaState == EditAreaState::EDIT_OBJECT_TYPE) {
-        editObjectForm->hideElements(editAreaLayout);
-        editAreaState = EditAreaState::DISPAY_OBJECTS_LIST_FILE;
-    }
-
     for (auto& object : objects) {
         labelList->displayLine(ui->scrollAreaForEdit->widget()->layout(), object->getName());
         for (auto& property : object->getProperties()) {
@@ -117,12 +102,7 @@ void MainWindow::on_actionOpen_List_triggered() {
 
 
 void MainWindow::on_actionNew_List_triggered() {
-    if (editAreaState == EditAreaState::NONE) {
-
-        creatorForm->show();
-
-        editAreaState = EditAreaState::DISPAY_OBJECTS_LIST_FILE; // ??
-    }
+    creatorForm->show();
 }
 
 void MainWindow::on_actionSave_List_triggered() {
@@ -153,6 +133,8 @@ void MainWindow::on_actionRedo_triggered() {
 void MainWindow::saveEditObjectForm() {
     editObjectForm->saveFormInfo(QDir::cleanPath(localPath.toString() + "\\" + runtimeSaveFileName));
     updateObjectTypesArea();
+
+    setState(ApplicationState::START);
 }
 
 
@@ -201,7 +183,7 @@ void MainWindow::createFileList() {
     newFile.open(QIODeviceBase::ReadOnly); // if doesn't exist, creates a new file
     newFile.close();
 
-    // emit some signal to clear the edit Area
+    setState(ApplicationState::CHANGE_LIST);
 }
 
 void MainWindow::setState(ApplicationState newState) {
@@ -225,6 +207,7 @@ void MainWindow::setState(ApplicationState newState) {
         ui->pushButtonCreateType->setEnabled(true);
         ui->menubar->actions()[1]->setEnabled(false);
 
+        editObjectForm->hideElements();
         break;
     }
     case ApplicationState::CREATE_OBJECT: {
@@ -236,6 +219,7 @@ void MainWindow::setState(ApplicationState newState) {
         ui->pushButtonCreateType->setEnabled(false);
         ui->menubar->actions()[1]->setEnabled(false);
 
+        editObjectForm->displayElements();
         break;
     }
     case ApplicationState::VIEW_LIST: {
@@ -247,6 +231,7 @@ void MainWindow::setState(ApplicationState newState) {
         ui->pushButtonCreateType->setEnabled(true);
         ui->menubar->actions()[1]->setEnabled(false);
 
+        editObjectForm->hideElements();
         break;
     }
     case ApplicationState::CHANGE_LIST: {
@@ -258,6 +243,7 @@ void MainWindow::setState(ApplicationState newState) {
         ui->pushButtonCreateType->setEnabled(false);
         ui->menubar->actions()[1]->setEnabled(true);
 
+        editObjectForm->hideElements();
         break;
     }
     }

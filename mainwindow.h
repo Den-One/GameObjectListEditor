@@ -21,12 +21,6 @@ class EditObjectForm;
 class LabelList;
 class FileCreatorForm;
 
-enum class EditAreaState : unsigned char {
-    NONE                     = 0,
-    EDIT_OBJECT_TYPE         = 1,
-    DISPAY_OBJECTS_LIST_FILE = 2,
-    SIZE                     = 3
-};
 ///////////////////////////////////////////////////////////////////////////////
 
 enum class ApplicationState : unsigned char {
@@ -43,7 +37,9 @@ public:
 
 public slots:
     void saveEditObjectForm();
+
     void createFileList();
+
     void objectTypeButtonClicked();
 
     void setState(ApplicationState newState);
@@ -73,8 +69,6 @@ private:
     QVBoxLayout *editAreaLayout;
     QVBoxLayout *typeAreaLayout;
 
-    EditAreaState editAreaState = EditAreaState::NONE;
-
     LabelList* labelList;
 
     QVector<QPushButton*> objectTypes;
@@ -93,6 +87,8 @@ private:
 
 
     ApplicationState state_;
+
+    QList<QWidget*> editAreaWidgets_;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -135,6 +131,8 @@ private:
 
     QPushButton* saveChangesButton;
 
+    bool isDisplayed = true;
+
 public:
     EditObjectForm() :
         objectNameLabel    (new QLabel("Object name:")),
@@ -165,7 +163,7 @@ public:
         delete saveChangesButton;
     }
 
-    void displayElements(QLayout* layout) {
+    void addOnLayoutHidden(QLayout* layout) {
         layout->addWidget(objectNameLabel);
         layout->addWidget(objectNameLineEdit);
         layout->addWidget(property1NameLabel);
@@ -177,32 +175,50 @@ public:
         layout->addWidget(property2DescLabel);
         layout->addWidget(property2TextEdit);
         layout->addWidget(saveChangesButton);
+
+        hideElements();
     }
 
-    void hideElements(QLayout* layout) {
-        layout->removeWidget(objectNameLabel);
-        layout->removeWidget(objectNameLineEdit);
-        layout->removeWidget(property1NameLabel);
-        layout->removeWidget(property1LineEdit);
-        layout->removeWidget(property1DescLabel);
-        layout->removeWidget(property1TextEdit);
-        layout->removeWidget(property2NameLabel);
-        layout->removeWidget(property2LineEdit);
-        layout->removeWidget(property2DescLabel);
-        layout->removeWidget(property2TextEdit);
-        layout->removeWidget(saveChangesButton);
+    void displayElements() {
+        if (!isDisplayed) {
+            objectNameLabel->setVisible(true);
+            objectNameLineEdit->setVisible(true);
+            property1NameLabel->setVisible(true);
+            property1LineEdit->setVisible(true);
+            property1DescLabel->setVisible(true);
+            property1TextEdit->setVisible(true);
+            property2NameLabel->setVisible(true);
+            property2LineEdit->setVisible(true);
+            property2DescLabel->setVisible(true);
+            property2TextEdit->setVisible(true);
+            saveChangesButton->setVisible(true);
 
-        objectNameLabel->deleteLater();
-        objectNameLineEdit->deleteLater();
-        property1NameLabel->deleteLater();
-        property1LineEdit->deleteLater();
-        property1DescLabel->deleteLater();
-        property1TextEdit->deleteLater();
-        property2NameLabel->deleteLater();
-        property2LineEdit->deleteLater();
-        property2DescLabel->deleteLater();
-        property2TextEdit->deleteLater();
-        saveChangesButton->deleteLater();
+            objectNameLineEdit->clear();
+            property1LineEdit->clear();
+            property1TextEdit->clear();
+            property2LineEdit->clear();
+            property2TextEdit->clear();
+
+            isDisplayed = true;
+        }
+    }
+
+    void hideElements() {
+        if (isDisplayed) {
+            objectNameLabel->setVisible(false);
+            objectNameLineEdit->setVisible(false);
+            property1NameLabel->setVisible(false);
+            property1LineEdit->setVisible(false);
+            property1DescLabel->setVisible(false);
+            property1TextEdit->setVisible(false);
+            property2NameLabel->setVisible(false);
+            property2LineEdit->setVisible(false);
+            property2DescLabel->setVisible(false);
+            property2TextEdit->setVisible(false);
+            saveChangesButton->setVisible(false);
+
+            isDisplayed = false;
+        }
     }
 
     void saveFormInfo(const QString& runtimeSaveFileName) {
