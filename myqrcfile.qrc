@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>BaseObjectTypes.txt</file>
+        <file>RuntimeObjectTypes.txt</file>
+    </qresource>
+    <qresource prefix="/menuIcons">
+        <file>icon-add-file-48.png</file>
+        <file>icon-open-48.png</file>
+        <file>icon-redo-48.png</file>
+        <file>icon-save-48.png</file>
+        <file>icon-undo-48.png</file>
+    </qresource>
+</RCC>
