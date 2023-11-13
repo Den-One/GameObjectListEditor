@@ -29,6 +29,11 @@ enum class EditAreaState : unsigned char {
 };
 ///////////////////////////////////////////////////////////////////////////////
 
+enum class ApplicationState : unsigned char {
+    START = 0, CREATE_OBJECT = 1, VIEW_LIST = 2, CHANGE_LIST = 3
+};
+
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -40,6 +45,8 @@ public slots:
     void saveEditObjectForm();
     void createFileList();
     void objectTypeButtonClicked();
+
+    void setState(ApplicationState newState);
 
 private slots:
     void on_pushButtonCreateType_clicked();
@@ -81,6 +88,11 @@ private:
 
     QStack<GameObject*> doStack;
     QStack<GameObject*> undoStack;
+
+    QLabel* statusBarLabel;
+
+
+    ApplicationState state_;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

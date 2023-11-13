@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     , editAreaLayout(new QVBoxLayout())
     , typeAreaLayout(new QVBoxLayout())
     , labelList(new LabelList())
+    , statusBarLabel(new QLabel("has unsaved changes"))
 {
     ui->setupUi(this);
     ui->scrollAreaForEdit->widget()->setLayout(editAreaLayout);
@@ -35,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(editObjectForm->getSaveButton(), &QPushButton::clicked, this, &MainWindow::saveEditObjectForm);
     connect(creatorForm->getCreateButton(), &QPushButton::clicked, this, &MainWindow::createFileList);
+
+    setState(ApplicationState::START);
 }
 
 MainWindow::~MainWindow() {
@@ -44,6 +47,7 @@ MainWindow::~MainWindow() {
     delete editAreaLayout;
     delete typeAreaLayout;
     delete labelList;
+    delete statusBarLabel;
 }
 
 void MainWindow::on_pushButtonCreateType_clicked() {
@@ -77,6 +81,8 @@ void MainWindow::objectTypeButtonClicked() {
             ui->scrollAreaForEdit->widget()->layout()->addWidget(new QLabel());
         }
     }
+
+    ui->statusbar->addPermanentWidget(statusBarLabel);
 }
 
 void MainWindow::on_actionOpen_List_triggered() {
@@ -129,6 +135,8 @@ void MainWindow::on_actionSave_List_triggered() {
         }
         file.close();
     }
+
+    ui->statusbar->removeWidget(statusBarLabel);
 }
 
 
@@ -194,4 +202,63 @@ void MainWindow::createFileList() {
     newFile.close();
 
     // emit some signal to clear the edit Area
+}
+
+void MainWindow::setState(ApplicationState newState) {
+    /*
+     *          start   create  view    change
+     * start            1       1       1
+     * create   1
+     * view             1               1
+     * change                   1
+     *
+     */
+
+    state_ = newState;
+    switch (state_) {
+    case ApplicationState::START: {
+
+        foreach (auto& button, objectTypes) {
+            button->setEnabled(false);
+        }
+
+        ui->pushButtonCreateType->setEnabled(true);
+        ui->menubar->actions()[1]->setEnabled(false);
+
+        break;
+    }
+    case ApplicationState::CREATE_OBJECT: {
+
+        foreach (auto& button, objectTypes) {
+            button->setEnabled(false);
+        }
+
+        ui->pushButtonCreateType->setEnabled(false);
+        ui->menubar->actions()[1]->setEnabled(false);
+
+        break;
+    }
+    case ApplicationState::VIEW_LIST: {
+
+        foreach (auto& button, objectTypes) {
+            button->setEnabled(true);
+        }
+
+        ui->pushButtonCreateType->setEnabled(true);
+        ui->menubar->actions()[1]->setEnabled(false);
+
+        break;
+    }
+    case ApplicationState::CHANGE_LIST: {
+
+        foreach (auto& button, objectTypes) {
+            button->setEnabled(true);
+        }
+
+        ui->pushButtonCreateType->setEnabled(false);
+        ui->menubar->actions()[1]->setEnabled(true);
+
+        break;
+    }
+    }
 }
