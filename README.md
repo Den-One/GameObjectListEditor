@@ -35,6 +35,7 @@ In opening dialog window it's already set to recognise only .txt files. Choose t
 ![alt text](https://github.com/Den-One/GameObjectListEditor/blob/main/documents/choose_file.png)
 
 If we look into out testFile.txt, it has a lot of raw data. But don't worry, the application parses all the information before displaying it.
+While parsing, empty lines are ignored. The document has 2 types of lines: 'OBJECT' and 'PROPERTY'. After this key word goes name of entity. On the property level, there is a property name and its description. On the object level, there is only name. Objects may have zero properties.
 
 ![alt text](https://github.com/Den-One/GameObjectListEditor/blob/main/documents/raw-dataFile.png)
 
