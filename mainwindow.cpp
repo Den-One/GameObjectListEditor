@@ -179,5 +179,6 @@ void MainWindow::writeGameObjects(const QUrl& url, const QVector<GameObject*>& o
 void MainWindow::createFileList() {
     QString fileName = creatorForm->getFileName();
     creatorForm->hide();
+
     QUrl url = QFileDialog::getExistingDirectoryUrl();
 }
