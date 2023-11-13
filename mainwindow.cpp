@@ -22,6 +22,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->scrollAreaForEdit->widget()->setLayout(editAreaLayout);
     ui->scrollAreaForTypes->widget()->setLayout(typeAreaLayout);
 
+    QString runtimeFileAddress = QDir::cleanPath(localPath.toString() + "\\" + runtimeSaveFileName);
+    QFile file(runtimeFileAddress);
+
+    file.open(QIODeviceBase::ReadOnly); // creates file if doesn't exists
+    file.close();
+
+    file.resize(0); // if already existed, cleans the content
+
     updateObjectTypesArea();
 
     connect(editObjectForm->getSaveButton(), &QPushButton::clicked, this, &MainWindow::saveEditObjectForm);
@@ -54,12 +62,15 @@ void MainWindow::on_pushButtonCreateType_clicked() {
 
 void MainWindow::on_actionOpen_List_triggered() {
     QUrl url = QFileDialog::getOpenFileName(this, tr("Open List - Game Object List Editor"), tr(""), tr("Text files (*.txt)"));
+    if (!url.isValid()) {
+        throw std::runtime_error("Not valid file path");
+    }
 
     if (url.isEmpty()) {
         return;
     }
 
-    QVector<GameObject*> objects = readGameObjects(url);
+    QVector<GameObject*> objects = ObjectFileManager{}.readGameObjects(url);
 
     if (editAreaState == EditAreaState::NONE) {
         editAreaState = EditAreaState::DISPAY_OBJECTS_LIST_FILE;
@@ -105,18 +116,13 @@ void MainWindow::on_actionRedo_triggered() {
 
 
 void MainWindow::saveEditObjectForm() {
-    editObjectForm->saveFormInfo();
+    editObjectForm->saveFormInfo(QDir::cleanPath(localPath.toString() + "\\" + runtimeSaveFileName));
     updateObjectTypesArea();
-
-    auto vec = readGameObjects(QUrl(":/RuntimeObjectTypes.txt"));
-    for (auto v : vec) {
-        qDebug() << v << "\n";
-    }
 }
 
 
 void MainWindow::updateObjectTypesArea() {
-    for (auto& typeButton : objectTypes) {
+    for (auto typeButton : objectTypes) {
         ui->scrollAreaForTypes->widget()->layout()->removeWidget(typeButton);
         typeButton->deleteLater();
     }
@@ -124,55 +130,19 @@ void MainWindow::updateObjectTypesArea() {
     objectTypes.clear();
     objectTypes.shrink_to_fit();
 
-    QVector<GameObject*> baseObjects = readGameObjects(QUrl(":/BaseObjectTypes.txt"));
+    QVector<GameObject*> baseObjects = ObjectFileManager{}.readGameObjects(QUrl(":/BaseObjectTypes.txt"));
 
     for (auto& object : baseObjects) {
         objectTypes.push_back(new QPushButton(object->getName()));
         ui->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes.back());
     }
 
-    QVector<GameObject*> userObjects = readGameObjects(QUrl(":/RuntimeObjectTypes.txt"));
+    QString saveFileFullPath = QDir::cleanPath(localPath.toString() + "\\" + runtimeSaveFileName);
+    QVector<GameObject*> userObjects = ObjectFileManager{}.readGameObjects(QUrl(saveFileFullPath));
 
     for (auto& object : userObjects) {
         objectTypes.push_back(new QPushButton(object->getName()));
         ui->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes.back());
-    }
-}
-
-QVector<GameObject*> MainWindow::readGameObjects(const QUrl& fileUrl) {
-    QVector<GameObject*> objects;
-    QFile file(fileUrl.path());
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        throw std::runtime_error("No such file to read");
-    }
-    else {
-        QTextStream stream(&file);
-        while (!stream.atEnd()) {
-            LineParser{}.parse(stream.readLine(), objects);
-        }
-
-        file.close();
-    }
-    return objects;
-}
-
-void MainWindow::writeGameObjects(const QUrl& url, const QVector<GameObject*>& objects) {
-    QFile file(url.fileName());
-
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        throw std::runtime_error("No such file to write");
-    }
-    else {
-        QTextStream stream(&file);
-        for (auto& object : objects) {
-            stream << LineType::OBJECT_ << " " << object->getName() << "\n";
-            for (auto& property : object->getProperties()) {
-                stream << LineType::PROPERTY_ << " "
-                       << property->getName()
-                       << property->getDescription() << "\n";
-            }
-        }
     }
 }
 

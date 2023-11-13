@@ -54,8 +54,6 @@ private slots:
 
 private:
     void updateObjectTypesArea();
-    QVector<GameObject*> readGameObjects(const QUrl& fileUrl);
-    void writeGameObjects(const QUrl& url, const QVector<GameObject*>& objects);
 
 private:
     Ui::MainWindow *ui;
@@ -71,6 +69,9 @@ private:
     LabelList* labelList;
 
     QVector<QPushButton*> objectTypes;
+
+    QUrl localPath = QCoreApplication::applicationDirPath();
+    QString runtimeSaveFileName = "RuntimeSaveFileName.txt";
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -183,7 +184,7 @@ public:
         saveChangesButton->deleteLater();
     }
 
-    void saveFormInfo() {
+    void saveFormInfo(const QString& runtimeSaveFileName) {
         if (objectNameLineEdit->text() != "") {
             GameObject* obj = new GameObject(objectNameLineEdit->text());
             if (property1LineEdit->text() != "") {
@@ -194,7 +195,7 @@ public:
                 obj->insertProperty(property2LineEdit->text(), property2TextEdit->toPlainText());
             }
 
-            ObjectFileManager{}.writeGameObject(QUrl(":/RuntimeObjectTypes.txt"), obj);
+            ObjectFileManager{}.writeGameObject(QUrl(runtimeSaveFileName), obj);
         }
     }
 
