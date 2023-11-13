@@ -75,6 +75,8 @@ private:
     QString runtimeSaveFileName = "RuntimeSaveFileName.txt";
 
     QString newFilePath;
+
+    QUrl openFileToEdit;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,6 +193,7 @@ public:
         if (objectNameLineEdit->text() != "") {
             GameObject* obj = new GameObject(objectNameLineEdit->text());
             if (property1LineEdit->text() != "") {
+                property1LineEdit->text().replace(" ", "");
                 obj->insertProperty(property1LineEdit->text(), property1TextEdit->toPlainText());
             }
 

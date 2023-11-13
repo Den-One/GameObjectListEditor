@@ -81,6 +81,7 @@ void MainWindow::objectTypeButtonClicked() {
 
 void MainWindow::on_actionOpen_List_triggered() {
     QUrl url = QFileDialog::getOpenFileName(this, tr("Open List - Game Object List Editor"), tr(""), tr("Text files (*.txt)"));
+    openFileToEdit = url;
     if (!url.isValid()) {
         throw std::runtime_error("Not valid file path");
     }
@@ -118,9 +119,16 @@ void MainWindow::on_actionNew_List_triggered() {
     }
 }
 
-
 void MainWindow::on_actionSave_List_triggered() {
+    QFile file(openFileToEdit.path());
 
+    if (file.open(QIODeviceBase::WriteOnly)) {
+        for (int i = 0; i < ui->scrollAreaForEdit->widget()->layout()->count(); ++i) {
+            QLabel* label = qobject_cast<QLabel*>(ui->scrollAreaForEdit->widget()->layout()->itemAt(i)->widget());
+            file.write(label->text().toStdString().c_str());
+        }
+        file.close();
+    }
 }
 
 
@@ -179,6 +187,7 @@ void MainWindow::createFileList() {
 
     QUrl url = QFileDialog::getExistingDirectoryUrl();
     newFilePath = QDir::cleanPath(url.toString() + "\\" + fileName);
+    openFileToEdit = QDir::cleanPath(url.toString() + "\\" + fileName);
 
     QFile newFile(newFilePath);
     newFile.open(QIODeviceBase::ReadOnly); // if doesn't exist, creates a new file
