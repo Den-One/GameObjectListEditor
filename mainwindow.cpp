@@ -139,13 +139,17 @@ void MainWindow::on_actionUndo_triggered() {
         return;
     }
 
-    auto gameObject = undoStack.pop();
-    qsizetype end = labelList->size();
-    /* 2 - additionaly deletes object name line and empty line */
-    qsizetype beg = end - gameObject->getProperties().size() - 2;
-    labelList->hideInRange(beg, end);
+    doStack.push(undoStack.pop());
 
-    doStack.push(gameObject);
+    labelList->hideAll();
+
+    for (auto object : readGameObjects(openFileToEdit) + undoStack) {
+        labelList->displayLine(object->getName());
+        for (auto property : object->getProperties()) {
+            labelList->displayLine(property->getName() + property->getDescription());
+        }
+        labelList->displayLine("");
+    }
 }
 
 
@@ -154,17 +158,17 @@ void MainWindow::on_actionRedo_triggered() {
         return;
     }
 
-    auto gameObject = doStack.pop();
-    labelList->displayLine(gameObject->getName());
+    undoStack.push(doStack.pop());
 
-    for (auto& property : gameObject->getProperties()) {
-        labelList->displayLine(
-            property->getName() + " " + property->getDescription()
-            );
+    labelList->hideAll();
+
+    for (auto object : readGameObjects(openFileToEdit) + undoStack) {
+        labelList->displayLine(object->getName());
+        for (auto property : object->getProperties()) {
+            labelList->displayLine(property->getName() + property->getDescription());
+        }
+        labelList->displayLine("");
     }
-
-    labelList->displayLine("");
-    undoStack.push(gameObject);
 }
 
 
