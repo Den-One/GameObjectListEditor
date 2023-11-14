@@ -143,7 +143,7 @@ public:
             end = size_;
         }
 
-        for (qsizetype i = beg; i < end + 1; ++i) {
+        for (qsizetype i = beg; i < end; ++i) {
             fileLines_.at(i)->setVisible(false);
         }
     }

@@ -139,9 +139,13 @@ void MainWindow::on_actionSave_List_triggered() {
 
 
 void MainWindow::on_actionUndo_triggered() {
+    if (undoStack.empty()) {
+        return;
+    }
+
     auto gameObject = undoStack.pop();
     qsizetype end = labelList->size();
-    // 2 - additional object name line and empty line
+    /* 2 - additionaly deletes object name line and empty line */
     qsizetype beg = end - gameObject->getProperties().size() - 2;
     labelList->hideInRange(beg, end);
 
@@ -150,7 +154,21 @@ void MainWindow::on_actionUndo_triggered() {
 
 
 void MainWindow::on_actionRedo_triggered() {
+    if (doStack.empty()) {
+        return;
+    }
 
+    auto gameObject = doStack.pop();
+    labelList->displayLine(gameObject->getName());
+
+    for (auto& property : gameObject->getProperties()) {
+        labelList->displayLine(
+            property->getName() + " " + property->getDescription()
+            );
+    }
+
+    labelList->displayLine("");
+    undoStack.push(gameObject);
 }
 
 
