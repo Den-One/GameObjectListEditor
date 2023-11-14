@@ -228,7 +228,7 @@ void MainWindow::createFileList() {
 
     QFile file(openFileToEdit.path());
     file.open(QIODevice::WriteOnly);
-    //file.close();
+    file.close();
 
     setState(ApplicationState::CHANGE_LIST);
 }
