@@ -114,9 +114,9 @@ void MainWindow::on_actionNew_List_triggered() {
 }
 
 void MainWindow::on_actionSave_List_triggered() {
-    for (qsizetype i = 0; i < undoStack.size(); ++i) {
-        auto newGameObject = undoStack.pop();
-        writeGameObject(openFileToEdit, newGameObject);
+    auto nNewObjects = undoStack.size();
+    for (qsizetype i = 0; i < nNewObjects; ++i) {
+        writeGameObject(openFileToEdit, undoStack.pop());
     }
 
     doStack.clear();
