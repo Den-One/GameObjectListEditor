@@ -159,16 +159,13 @@ public:
         }
 
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-            qDebug() << QCoreApplication::applicationDirPath() << Qt::endl;
             throw std::runtime_error("No such file to write"); // !!!
         }
         else {
             QTextStream stream(&file);
-            qDebug() << LineType::OBJECT_ << " " << object->getName() << "\n";
 
             file.write(QString(LineType::OBJECT_ + " " + object->getName() + "\n").toStdString().c_str());
             for (auto& property : object->getProperties()) {
-                qDebug() << LineType::PROPERTY_ << " " << property->getName() << " " << property->getDescription();
                 file.write(QString(LineType::PROPERTY_ + " " + property->getName() + " " + property->getDescription() + "\n").toStdString().c_str());
             }
             file.write("\n");
@@ -178,7 +175,6 @@ public:
 
     void writeGameObjects(const QUrl& url, const QVector<GameObject*>& objects) {
         QFile file(url.path());
-        qDebug() << "writeGameObjects:" << url.path() << Qt::endl;
 
         if (!file.exists()) {
             throw std::runtime_error("Not valid file's url while writing");
@@ -203,7 +199,6 @@ public:
     QVector<GameObject*> readGameObjects(const QUrl& fileUrl) {
         QVector<GameObject*> objects;
         QFile file(fileUrl.path());
-        qDebug() << "readGameObjects:" << fileUrl.path() << Qt::endl;
 
         if (!file.exists()) {
             throw std::runtime_error("Not valid file's url while reading");

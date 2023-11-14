@@ -124,17 +124,23 @@ void MainWindow::on_actionNew_List_triggered() {
 }
 
 void MainWindow::on_actionSave_List_triggered() {
-    QFile file(openFileToEdit.path());
-
-    if (file.open(QIODeviceBase::WriteOnly)) {
-        for (int i = 0; i < ui->scrollAreaForEdit->widget()->layout()->count(); ++i) {
-            QLabel* label = qobject_cast<QLabel*>(ui->scrollAreaForEdit->widget()->layout()->itemAt(i)->widget());
-            file.write(label->text().toStdString().c_str());
-        }
-        file.close();
+    for (qsizetype i = 0; i < undoStack.size(); ++i) {
+        auto newGameObject = undoStack.pop();
+        ObjectFileManager{}.writeGameObject(openFileToEdit, newGameObject);
     }
 
+    doStack.clear();
     ui->statusbar->removeWidget(statusBarLabel);
+
+    setState(ApplicationState::VIEW_LIST);
+
+    for (auto& object : ObjectFileManager{}.readGameObjects(openFileToEdit)) {
+        labelList->displayLine(object->getName());
+        for (auto& property : object->getProperties()) {
+            labelList->displayLine(property->getName() + property->getDescription());
+        }
+        labelList->displayLine("");
+    }
 }
 
 
@@ -218,10 +224,9 @@ void MainWindow::createFileList() {
     creatorForm->hide();
 
     QUrl url = QFileDialog::getExistingDirectoryUrl(this, "Create List - Game Object List Editor");
-    newFilePath = QDir::cleanPath(url.toString() + "\\" + fileName);
     openFileToEdit = QDir::cleanPath(url.toString() + "\\" + fileName);
 
-    QFile newFile(newFilePath);
+    QFile newFile(openFileToEdit.path());
     newFile.open(QIODeviceBase::ReadOnly); // if doesn't exist, creates a new file
     newFile.close();
 

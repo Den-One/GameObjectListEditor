@@ -16,12 +16,11 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-///////////////////////////////////////////////////////////////////////////////
+
 class EditObjectForm;
 class LabelList;
 class FileCreatorForm;
 
-///////////////////////////////////////////////////////////////////////////////
 
 enum class ApplicationState : unsigned char {
     START = 0, CREATE_OBJECT = 1, VIEW_LIST = 2, CHANGE_LIST = 3
@@ -70,25 +69,20 @@ private:
     QVBoxLayout *typeAreaLayout;
 
     LabelList* labelList;
-
     QVector<QPushButton*> objectTypes;
+    QList<QWidget*> editAreaWidgets_;
 
     QUrl localPath = QCoreApplication::applicationDirPath();
-    QString runtimeSaveFileName = "RuntimeSaveFileName.txt";
-
-    QString newFilePath;
-
     QUrl openFileToEdit;
+
+    QString runtimeSaveFileName = "RuntimeSaveFileName.txt";
 
     QStack<GameObject*> doStack;
     QStack<GameObject*> undoStack;
 
     QLabel* statusBarLabel;
 
-
     ApplicationState state_;
-
-    QList<QWidget*> editAreaWidgets_;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -152,6 +146,8 @@ public:
         return size_;
     }
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 class EditObjectForm final {
 private:
@@ -280,6 +276,8 @@ public:
         return saveChangesButton;
     }
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 class FileCreatorForm final {
 private:
