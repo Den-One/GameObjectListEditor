@@ -10,6 +10,14 @@ GameObjectListEditor (or just ListEditor) is a little document editing applicati
 | Ctrl+Z  | Undo changes.                                            |
 | Ctrl+Y  | Redo changes.                                            |
 
+## Main Window States
+|        | start | create | view | change |
+| :----: | :---: | :----: | :--: | :----: |
+| start  |       | +      | +    | +      |
+| create | +     |        |      |        |
+| view   |       | +      |      | +      |
+| change |       |        | +    |        |
+
 ## First Look
 
 As you can see, application separates into 2 main parts: Object Types Area and Edit Area.
