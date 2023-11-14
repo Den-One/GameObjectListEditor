@@ -9,12 +9,17 @@ CONFIG += c++20
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    gameobject.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    property.cpp \
+    rwmanager.cpp
 
 HEADERS += \
+    gameobject.h \
     mainwindow.h \
-    temporary.h
+    property.h \
+    rwmanager.h
 
 FORMS += \
     mainwindow.ui

@@ -1,7 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "temporary.h"
+#include "qcoreapplication.h"
+#include "rwmanager.h"
 
 #include <QMainWindow>
 #include <QLabel>
@@ -39,7 +40,7 @@ public slots:
 
     void createFileList();
 
-    void objectTypeButtonClicked();
+    void addTypeButtonClicked();
 
     void setState(ApplicationState newState);
 
@@ -57,7 +58,7 @@ private slots:
     void on_actionRedo_triggered();
 
 private:
-    void updateObjectTypesArea();
+    void addObjectToObjectArea(GameObject* object);
 
 private:
     Ui::MainWindow *ui;
@@ -75,7 +76,7 @@ private:
     QUrl localPath = QCoreApplication::applicationDirPath();
     QUrl openFileToEdit;
 
-    QString runtimeSaveFileName = "RuntimeSaveFileName.txt";
+    QVector<GameObject*> runtimeGameObjects;
 
     QStack<GameObject*> doStack;
     QStack<GameObject*> undoStack;
@@ -83,6 +84,8 @@ private:
     QLabel* statusBarLabel;
 
     ApplicationState state_;
+
+    const QString baseObjectsFileUrl = ":/BaseObjectTypes.txt";
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -256,19 +259,25 @@ public:
         }
     }
 
-    void saveFormInfo(const QString& runtimeSaveFileName) {
+    void saveRuntimeObjectInfo(QVector<GameObject*>& object) {
         if (objectNameLineEdit->text() != "") {
-            GameObject* obj = new GameObject(objectNameLineEdit->text());
+            objectNameLineEdit->text().replace(" ", "");
+            GameObject* newObject = new GameObject(objectNameLineEdit->text());
             if (property1LineEdit->text() != "") {
                 property1LineEdit->text().replace(" ", "");
-                obj->insertProperty(property1LineEdit->text(), property1TextEdit->toPlainText());
+                newObject->insertProperty(
+                    property1LineEdit->text(), property1TextEdit->toPlainText()
+                );
             }
 
             if (property2LineEdit->text() != "") {
-                obj->insertProperty(property2LineEdit->text(), property2TextEdit->toPlainText());
+                property2LineEdit->text().replace(" ", "");
+                newObject->insertProperty(
+                    property2LineEdit->text(), property2TextEdit->toPlainText()
+                    );
             }
 
-            ObjectFileManager{}.writeGameObject(QUrl(runtimeSaveFileName), obj);
+            object.push_back(newObject);
         }
     }
 

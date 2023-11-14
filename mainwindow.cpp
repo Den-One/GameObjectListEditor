@@ -24,15 +24,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->scrollAreaForEdit->widget()->setLayout(editAreaLayout);
     ui->scrollAreaForTypes->widget()->setLayout(typeAreaLayout);
 
-    QString runtimeFileAddress = QDir::cleanPath(localPath.toString() + "\\" + runtimeSaveFileName);
-    QFile file(runtimeFileAddress);
-
-    file.open(QIODeviceBase::ReadOnly); // creates file if doesn't exists
-    file.close();
-
-    file.resize(0); // if already existed, cleans the content
-
-    updateObjectTypesArea();
+    for (auto object : readGameObjects(QUrl(baseObjectsFileUrl))) {
+        addObjectToObjectArea(object);
+    }
 
     connect(editObjectForm->getSaveButton(), &QPushButton::clicked, this, &MainWindow::saveEditObjectForm);
     connect(creatorForm->getCreateButton(), &QPushButton::clicked, this, &MainWindow::createFileList);
@@ -57,16 +51,13 @@ void MainWindow::on_pushButtonCreateType_clicked() {
     setState(ApplicationState::CREATE_OBJECT);
 }
 
-void MainWindow::objectTypeButtonClicked() {
+void MainWindow::addTypeButtonClicked() {
     QPushButton* gameObjectButton
         = qobject_cast<QPushButton*>(QObject::sender());
 
-    QVector<GameObject*> objects
-        = ObjectFileManager{}.readGameObjects(QUrl(":/BaseObjectTypes.txt"));
+    QVector<GameObject*> objects = readGameObjects(QUrl(baseObjectsFileUrl));
 
-    objects += ObjectFileManager{}.readGameObjects(
-        QUrl(QDir::cleanPath(localPath.toString() +"\\"+ runtimeSaveFileName))
-    );
+    objects += runtimeGameObjects;
 
     for (auto& object : objects) {
         if (object->getName() == gameObjectButton->text()) {
@@ -104,8 +95,7 @@ void MainWindow::on_actionOpen_List_triggered() {
         throw std::runtime_error("Not valid file path");
     }
 
-    QVector<GameObject*> objects =
-        ObjectFileManager{}.readGameObjects(openFileToEdit);
+    QVector<GameObject*> objects = readGameObjects(openFileToEdit);
 
     setState(ApplicationState::VIEW_LIST);
 
@@ -126,7 +116,7 @@ void MainWindow::on_actionNew_List_triggered() {
 void MainWindow::on_actionSave_List_triggered() {
     for (qsizetype i = 0; i < undoStack.size(); ++i) {
         auto newGameObject = undoStack.pop();
-        ObjectFileManager{}.writeGameObject(openFileToEdit, newGameObject);
+        writeGameObject(openFileToEdit, newGameObject);
     }
 
     doStack.clear();
@@ -134,7 +124,7 @@ void MainWindow::on_actionSave_List_triggered() {
 
     setState(ApplicationState::VIEW_LIST);
 
-    for (auto& object : ObjectFileManager{}.readGameObjects(openFileToEdit)) {
+    for (auto& object : readGameObjects(openFileToEdit)) {
         labelList->displayLine(object->getName());
         for (auto& property : object->getProperties()) {
             labelList->displayLine(property->getName() + property->getDescription());
@@ -179,44 +169,15 @@ void MainWindow::on_actionRedo_triggered() {
 
 
 void MainWindow::saveEditObjectForm() {
-    editObjectForm->saveFormInfo(QDir::cleanPath(localPath.toString() + "\\" + runtimeSaveFileName));
-    updateObjectTypesArea();
-
+    editObjectForm->saveRuntimeObjectInfo(runtimeGameObjects);
+    addObjectToObjectArea(runtimeGameObjects.back());
     setState(ApplicationState::START);
 }
 
-
-void MainWindow::updateObjectTypesArea() {
-    for (auto typeButton : objectTypes) {
-        ui->scrollAreaForTypes->widget()->layout()->removeWidget(typeButton);
-        typeButton->deleteLater();
-    }
-
-    for (auto& button : objectTypes) {
-        disconnect(button, &QPushButton::clicked, this, &MainWindow::objectTypeButtonClicked);
-    }
-
-    objectTypes.clear();
-    objectTypes.shrink_to_fit();
-
-    QVector<GameObject*> baseObjects = ObjectFileManager{}.readGameObjects(QUrl(":/BaseObjectTypes.txt"));
-
-    for (auto& object : baseObjects) {
-        objectTypes.push_back(new QPushButton(object->getName()));
-        ui->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes.back());
-    }
-
-    QString saveFileFullPath = QDir::cleanPath(localPath.toString() + "\\" + runtimeSaveFileName);
-    QVector<GameObject*> userObjects = ObjectFileManager{}.readGameObjects(QUrl(saveFileFullPath));
-
-    for (auto& object : userObjects) {
-        objectTypes.push_back(new QPushButton(object->getName()));
-        ui->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes.back());
-    }
-
-    for (auto& button : objectTypes) {
-        connect(button, &QPushButton::clicked, this, &MainWindow::objectTypeButtonClicked);
-    }
+void MainWindow::addObjectToObjectArea(GameObject* object) {
+    objectTypes.push_back(new QPushButton(object->getName()));
+    ui->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes.back());
+    connect(objectTypes.back(), &QPushButton::clicked, this, &MainWindow::addTypeButtonClicked);
 }
 
 void MainWindow::createFileList() {
