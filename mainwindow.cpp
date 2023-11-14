@@ -223,12 +223,12 @@ void MainWindow::createFileList() {
     QString fileName = creatorForm->getFileName();
     creatorForm->hide();
 
-    QUrl url = QFileDialog::getExistingDirectoryUrl(this, "Create List - Game Object List Editor");
-    openFileToEdit = QDir::cleanPath(url.toString() + "\\" + fileName);
+    QString dir = QFileDialog::getExistingDirectory(this, "Create List - Game Object List Editor");
+    openFileToEdit = QDir::cleanPath(dir + "\\" + fileName);
 
-    QFile newFile(openFileToEdit.path());
-    newFile.open(QIODeviceBase::ReadOnly); // if doesn't exist, creates a new file
-    newFile.close();
+    QFile file(openFileToEdit.path());
+    file.open(QIODevice::WriteOnly);
+    //file.close();
 
     setState(ApplicationState::CHANGE_LIST);
 }
