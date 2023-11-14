@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(creatorForm->getCreateButton(), &QPushButton::clicked, this, &MainWindow::createFileList);
 
     editObjectForm->addOnLayoutHidden(ui->scrollAreaForEdit->widget()->layout());
+    labelList->setLayout(ui->scrollAreaForEdit->widget()->layout());
 
     setState(ApplicationState::START);
 }
@@ -53,8 +54,6 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::on_pushButtonCreateType_clicked() {
-    labelList->deleteAll(ui->scrollAreaForEdit->widget()->layout());
-
     setState(ApplicationState::CREATE_OBJECT);
 }
 
@@ -79,24 +78,32 @@ void MainWindow::objectTypeButtonClicked() {
 }
 
 void MainWindow::on_actionOpen_List_triggered() {
-    QUrl url = QFileDialog::getOpenFileName(this, tr("Open List - Game Object List Editor"), tr(""), tr("Text files (*.txt)"));
-    openFileToEdit = url;
-    if (!url.isValid()) {
-        throw std::runtime_error("Not valid file path");
-    }
+    openFileToEdit = QFileDialog::getOpenFileName(
+        this,
+        tr("Open List - Game Object List Editor"),
+        tr(""),
+        tr("Text files (*.txt)")
+    );
 
-    if (url.isEmpty()) {
+    if (openFileToEdit.isEmpty()) {
         return;
     }
 
-    QVector<GameObject*> objects = ObjectFileManager{}.readGameObjects(url);
+    if (!openFileToEdit.isValid()) {
+        throw std::runtime_error("Not valid file path");
+    }
+
+    QVector<GameObject*> objects =
+        ObjectFileManager{}.readGameObjects(openFileToEdit);
+
+    setState(ApplicationState::VIEW_LIST);
 
     for (auto& object : objects) {
-        labelList->displayLine(ui->scrollAreaForEdit->widget()->layout(), object->getName());
+        labelList->displayLine(object->getName());
         for (auto& property : object->getProperties()) {
-            labelList->displayLine(ui->scrollAreaForEdit->widget()->layout(), property->getName() + property->getDescription());
+            labelList->displayLine(property->getName() + property->getDescription());
         }
-        labelList->displayLine(ui->scrollAreaForEdit->widget()->layout(), "");
+        labelList->displayLine("");
     }
 }
 
@@ -208,6 +215,8 @@ void MainWindow::setState(ApplicationState newState) {
         ui->menubar->actions()[1]->setEnabled(false);
 
         editObjectForm->hideElements();
+        labelList->hideAll();
+
         break;
     }
     case ApplicationState::CREATE_OBJECT: {
@@ -220,6 +229,8 @@ void MainWindow::setState(ApplicationState newState) {
         ui->menubar->actions()[1]->setEnabled(false);
 
         editObjectForm->displayElements();
+        labelList->hideAll();
+
         break;
     }
     case ApplicationState::VIEW_LIST: {
@@ -232,6 +243,8 @@ void MainWindow::setState(ApplicationState newState) {
         ui->menubar->actions()[1]->setEnabled(false);
 
         editObjectForm->hideElements();
+        labelList->hideAll();
+
         break;
     }
     case ApplicationState::CHANGE_LIST: {
@@ -244,6 +257,8 @@ void MainWindow::setState(ApplicationState newState) {
         ui->menubar->actions()[1]->setEnabled(true);
 
         editObjectForm->hideElements();
+        labelList->hideAll();
+
         break;
     }
     }

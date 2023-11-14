@@ -94,23 +94,44 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 class LabelList final {
 private:
-    QList<QLabel*> fileLines;
+    QList<QLabel*> fileLines_;
+    qsizetype size_ = 0;
+    qsizetype capacity_ = 0;
 
+    QLayout* layout_;
 public:
     LabelList() {}
 
-    void displayLine(QLayout* layout, const QString& line) {
-        QLabel* label = new QLabel(line);
-        layout->addWidget(label);
-        fileLines.append(label);
+    void setLayout(QLayout* layout) {
+        layout_ = layout;
     }
 
-    void deleteAll(QLayout* layout) {
-        for (auto& line : fileLines) {
-            layout->removeWidget(line);
-            fileLines.removeOne(line);
-            line->deleteLater();
+    void displayLine(const QString& line) {
+        if (size_ == capacity_) {
+            qsizetype i = (capacity_ == 0) ? -1 : 0;
+
+            for (; i < capacity_; ++i) {
+                QLabel* label = new QLabel(line);
+                layout_->addWidget(label);
+                fileLines_.append(label);
+            }
+
+            capacity_ = fileLines_.size();
         }
+        else {
+            fileLines_.at(size_)->setText(line);
+            fileLines_.at(size_)->setVisible(true); // !
+        }
+
+        ++size_;
+    }
+
+    void hideAll() {
+        for (auto& line : fileLines_) {
+            line->setVisible(false);
+        }
+
+        size_ = 0;
     }
 };
 
@@ -145,7 +166,7 @@ public:
         property2LineEdit  (new QLineEdit()),
         property2DescLabel (new QLabel("Property #1 description:")),
         property2TextEdit  (new QTextEdit()),
-        saveChangesButton  (new QPushButton("Save"))
+        saveChangesButton  (new QPushButton("Save or quit"))
     {
     }
 
