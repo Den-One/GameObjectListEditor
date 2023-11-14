@@ -99,6 +99,19 @@ private:
     qsizetype capacity_ = 0;
 
     QLayout* layout_;
+
+private:
+    void allocateMemory() {
+        qsizetype i = (capacity_ == 0) ? -1 : 0;
+        for (; i < capacity_; ++i) {
+            QLabel* label = new QLabel();
+            label->setVisible(false);
+            layout_->addWidget(label);
+            fileLines_.append(label);
+        }
+        capacity_ = fileLines_.size();
+    }
+
 public:
     LabelList() {}
 
@@ -108,20 +121,11 @@ public:
 
     void displayLine(const QString& line) {
         if (size_ == capacity_) {
-            qsizetype i = (capacity_ == 0) ? -1 : 0;
-
-            for (; i < capacity_; ++i) {
-                QLabel* label = new QLabel(line);
-                layout_->addWidget(label);
-                fileLines_.append(label);
-            }
-
-            capacity_ = fileLines_.size();
+            allocateMemory();
         }
-        else {
-            fileLines_.at(size_)->setText(line);
-            fileLines_.at(size_)->setVisible(true); // !
-        }
+
+        fileLines_.at(size_)->setText(line);
+        fileLines_.at(size_)->setVisible(true);
 
         ++size_;
     }

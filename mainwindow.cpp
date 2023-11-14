@@ -58,23 +58,34 @@ void MainWindow::on_pushButtonCreateType_clicked() {
 }
 
 void MainWindow::objectTypeButtonClicked() {
-    QPushButton* sender = qobject_cast<QPushButton*>(QObject::sender());
-    QString objectName = sender->text();
+    QPushButton* gameObjectButton
+        = qobject_cast<QPushButton*>(QObject::sender());
 
-    QVector<GameObject*> objects = ObjectFileManager{}.readGameObjects(QUrl(":/BaseObjectTypes.txt"));
-    objects += ObjectFileManager{}.readGameObjects(QUrl(QDir::cleanPath(localPath.toString() + "\\" + runtimeSaveFileName)));
+    QVector<GameObject*> objects
+        = ObjectFileManager{}.readGameObjects(QUrl(":/BaseObjectTypes.txt"));
+
+    objects += ObjectFileManager{}.readGameObjects(
+        QUrl(QDir::cleanPath(localPath.toString() +"\\"+ runtimeSaveFileName))
+    );
 
     for (auto& object : objects) {
-        if (object->getName() == objectName) {
-            ui->scrollAreaForEdit->widget()->layout()->addWidget(new QLabel(object->getName()));
+        if (object->getName() == gameObjectButton->text()) {
+            labelList->displayLine(object->getName());
+
             for (auto& property : object->getProperties()) {
-                ui->scrollAreaForEdit->widget()->layout()->addWidget(new QLabel(property->getName() + " " + property->getDescription()));
+                labelList->displayLine(
+                    property->getName() + " " + property->getDescription()
+                );
             }
-            ui->scrollAreaForEdit->widget()->layout()->addWidget(new QLabel());
+
+            labelList->displayLine("");
+            undoStack.push(object);
         }
     }
 
     ui->statusbar->addPermanentWidget(statusBarLabel);
+
+    setState(ApplicationState::CHANGE_LIST);
 }
 
 void MainWindow::on_actionOpen_List_triggered() {
@@ -128,7 +139,7 @@ void MainWindow::on_actionSave_List_triggered() {
 
 
 void MainWindow::on_actionUndo_triggered() {
-
+    doStack.push(undoStack.pop());
 }
 
 
@@ -194,15 +205,6 @@ void MainWindow::createFileList() {
 }
 
 void MainWindow::setState(ApplicationState newState) {
-    /*
-     *          start   create  view    change
-     * start            1       1       1
-     * create   1
-     * view             1               1
-     * change                   1
-     *
-     */
-
     state_ = newState;
     switch (state_) {
     case ApplicationState::START: {
@@ -212,6 +214,7 @@ void MainWindow::setState(ApplicationState newState) {
         }
 
         ui->pushButtonCreateType->setEnabled(true);
+        ui->menubar->actions()[0]->setEnabled(true);
         ui->menubar->actions()[1]->setEnabled(false);
 
         editObjectForm->hideElements();
@@ -226,6 +229,7 @@ void MainWindow::setState(ApplicationState newState) {
         }
 
         ui->pushButtonCreateType->setEnabled(false);
+        ui->menubar->actions()[0]->setEnabled(false);
         ui->menubar->actions()[1]->setEnabled(false);
 
         editObjectForm->displayElements();
@@ -240,6 +244,7 @@ void MainWindow::setState(ApplicationState newState) {
         }
 
         ui->pushButtonCreateType->setEnabled(true);
+        ui->menubar->actions()[0]->setEnabled(true);
         ui->menubar->actions()[1]->setEnabled(false);
 
         editObjectForm->hideElements();
@@ -254,10 +259,10 @@ void MainWindow::setState(ApplicationState newState) {
         }
 
         ui->pushButtonCreateType->setEnabled(false);
+        ui->menubar->actions()[0]->setEnabled(true);
         ui->menubar->actions()[1]->setEnabled(true);
 
         editObjectForm->hideElements();
-        labelList->hideAll();
 
         break;
     }
