@@ -137,6 +137,20 @@ public:
 
         size_ = 0;
     }
+
+    void hideInRange(qsizetype beg, qsizetype end) {
+        if (end > size_) {
+            end = size_;
+        }
+
+        for (qsizetype i = beg; i < end + 1; ++i) {
+            fileLines_.at(i)->setVisible(false);
+        }
+    }
+
+    qsizetype size() {
+        return size_;
+    }
 };
 
 class EditObjectForm final {

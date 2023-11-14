@@ -139,7 +139,13 @@ void MainWindow::on_actionSave_List_triggered() {
 
 
 void MainWindow::on_actionUndo_triggered() {
-    doStack.push(undoStack.pop());
+    auto gameObject = undoStack.pop();
+    qsizetype end = labelList->size();
+    // 2 - additional object name line and empty line
+    qsizetype beg = end - gameObject->getProperties().size() - 2;
+    labelList->hideInRange(beg, end);
+
+    doStack.push(gameObject);
 }
 
 
