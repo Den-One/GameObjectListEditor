@@ -60,6 +60,8 @@ private slots:
 private:
     void addObjectToObjectArea(GameObject* object);
 
+    void displayGameObjects(QVector<GameObject*>&& objects);
+
 private:
     Ui::MainWindow *ui;
 

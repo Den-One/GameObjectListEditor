@@ -95,17 +95,9 @@ void MainWindow::on_actionOpen_List_triggered() {
         throw std::runtime_error("Not valid file path");
     }
 
-    QVector<GameObject*> objects = readGameObjects(openFileToEdit);
-
     setState(ApplicationState::VIEW_LIST);
 
-    for (auto& object : objects) {
-        labelList->displayLine(object->getName());
-        for (auto& property : object->getProperties()) {
-            labelList->displayLine(property->getName() + property->getDescription());
-        }
-        labelList->displayLine("");
-    }
+    displayGameObjects(readGameObjects(openFileToEdit));
 }
 
 
@@ -124,13 +116,7 @@ void MainWindow::on_actionSave_List_triggered() {
 
     setState(ApplicationState::VIEW_LIST);
 
-    for (auto& object : readGameObjects(openFileToEdit)) {
-        labelList->displayLine(object->getName());
-        for (auto& property : object->getProperties()) {
-            labelList->displayLine(property->getName() + property->getDescription());
-        }
-        labelList->displayLine("");
-    }
+    displayGameObjects(readGameObjects(openFileToEdit));
 }
 
 
@@ -143,13 +129,7 @@ void MainWindow::on_actionUndo_triggered() {
 
     labelList->hideAll();
 
-    for (auto object : readGameObjects(openFileToEdit) + undoStack) {
-        labelList->displayLine(object->getName());
-        for (auto property : object->getProperties()) {
-            labelList->displayLine(property->getName() + property->getDescription());
-        }
-        labelList->displayLine("");
-    }
+    displayGameObjects(readGameObjects(openFileToEdit) + undoStack);
 }
 
 
@@ -162,13 +142,7 @@ void MainWindow::on_actionRedo_triggered() {
 
     labelList->hideAll();
 
-    for (auto object : readGameObjects(openFileToEdit) + undoStack) {
-        labelList->displayLine(object->getName());
-        for (auto property : object->getProperties()) {
-            labelList->displayLine(property->getName() + property->getDescription());
-        }
-        labelList->displayLine("");
-    }
+    displayGameObjects(readGameObjects(openFileToEdit) + undoStack);
 }
 
 
@@ -182,6 +156,16 @@ void MainWindow::addObjectToObjectArea(GameObject* object) {
     objectTypes.push_back(new QPushButton(object->getName()));
     ui->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes.back());
     connect(objectTypes.back(), &QPushButton::clicked, this, &MainWindow::addTypeButtonClicked);
+}
+
+void MainWindow::displayGameObjects(QVector<GameObject*>&& objects) {
+    for (auto object : objects) {
+        labelList->displayLine(object->getName());
+        for (auto property : object->getProperties()) {
+            labelList->displayLine(property->getName() + property->getDescription());
+        }
+        labelList->displayLine("");
+    }
 }
 
 void MainWindow::createFileList() {
