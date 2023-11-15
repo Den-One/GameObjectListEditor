@@ -6,7 +6,7 @@ GameObjectListEditor (or just ListEditor) is a little document editing applicati
 To download and run this application, click on the button below
 
 <!-- BEGIN LATEST DOWNLOAD BUTTON -->
-[![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/Den-One/GameObjectListEditor/blob/main/GameObjectListEditor.zip)
+[![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/Den-One/GameObjectListEditor/tree/main/archive/GameObjectListEditor.zip)
 <!-- END LATEST DOWNLOAD BUTTON -->
 
 ## Hot Keys
