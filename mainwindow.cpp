@@ -107,16 +107,16 @@ void MainWindow::on_actionNew_List_triggered() {
 }
 
 void MainWindow::on_actionSave_List_triggered() {
-    auto list = undoStack.toList();
-    for (auto it = list.begin(), itend = list.end(); it != itend; ++it) {
-        writeGameObject(openFileToEdit, *it);
+    if (state_ == ApplicationState::CHANGE_LIST) {
+        auto list = undoStack.toList();
+        for (auto it = list.begin(), itend = list.end(); it != itend; ++it) {
+            writeGameObject(openFileToEdit, *it);
+        }
+
+        ui->statusbar->removeWidget(statusBarLabel);
+        setState(ApplicationState::VIEW_LIST);
+        displayGameObjects(readGameObjects(openFileToEdit));
     }
-
-    ui->statusbar->removeWidget(statusBarLabel);
-
-    setState(ApplicationState::VIEW_LIST);
-
-    displayGameObjects(readGameObjects(openFileToEdit));
 }
 
 
