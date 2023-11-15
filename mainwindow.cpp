@@ -75,6 +75,7 @@ void MainWindow::addTypeButtonClicked() {
     }
 
     ui->statusbar->addPermanentWidget(statusBarLabel);
+    doStack.clear();
 
     setState(ApplicationState::CHANGE_LIST);
 }
