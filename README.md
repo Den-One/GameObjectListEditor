@@ -1,6 +1,14 @@
 # GameObjectListEditor
 GameObjectListEditor (or just ListEditor) is a little document editing application which allows you to create lists of objects: choose their names, properties and description.
 
+## Download
+
+Download and run this application:
+
+<!-- BEGIN LATEST DOWNLOAD BUTTON -->
+[![Download rar](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/Den-One/GameObjectListEditor/blob/main/GameObjectListEditor.rar)
+<!-- END LATEST DOWNLOAD BUTTON -->
+
 ## Hot Keys
 | Hot Key | Desription                                               |
 | :-----: | -------------------------------------------------------- |
