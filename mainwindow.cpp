@@ -106,11 +106,12 @@ void MainWindow::on_actionNew_List_triggered() {
 }
 
 void MainWindow::on_actionSave_List_triggered() {
-    auto nNewObjects = undoStack.size();
-    for (qsizetype i = 0; i < nNewObjects; ++i) {
-        writeGameObject(openFileToEdit, undoStack.pop());
+    auto list = undoStack.toList();
+    for (auto it = list.begin(), itend = list.end(); it != itend; ++it) {
+        writeGameObject(openFileToEdit, *it);
     }
 
+    undoStack.clear();
     doStack.clear();
     ui->statusbar->removeWidget(statusBarLabel);
 

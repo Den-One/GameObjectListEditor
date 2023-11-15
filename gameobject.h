@@ -4,12 +4,11 @@
 #include "property.h"
 
 #include <QList>
-#include <QSet>
 
 class GameObject final {
 private:
     QString name_;
-    QSet<Property*> properties_; // it should be set, looks like it's unordered
+    QVector<Property*> properties_; // it should be set, looks like it's unordered
 
 public:
     GameObject() = delete;

@@ -1,19 +1,19 @@
 #include "gameobject.h"
 
-GameObject::GameObject(QString&& name) : name_ {name}
-{
-}
+GameObject::GameObject(QString&& name) : name_ {name} {}
+
 
 void GameObject::insertProperty(QString&& name, QString&& description) {
     try {
-        properties_.insert(
+        properties_.push_back(
             new Property(std::move(name), std::move(description))
-            );
+        );
     }
     catch (std::bad_alloc& ec) {
         puts(ec.what());
     }
 }
+
 
 void GameObject::removeProperty(const QString& name) {
     properties_.removeIf([&name](auto elem) {
@@ -21,13 +21,16 @@ void GameObject::removeProperty(const QString& name) {
     });
 }
 
+
 void GameObject::removeAll() {
     return properties_.clear();
 }
 
+
 QList<Property*> GameObject::getProperties() {
-    return properties_.values();
+    return properties_.toList();
 }
+
 
 QString GameObject::getName() {
     return name_;
