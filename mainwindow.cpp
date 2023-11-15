@@ -147,8 +147,14 @@ void MainWindow::on_actionRedo_triggered() {
 
 
 void MainWindow::saveEditObjectForm() {
+    qsizetype sizeBefore = runtimeGameObjects.size();
     editObjectForm->saveRuntimeObjectInfo(runtimeGameObjects);
-    addObjectToObjectArea(runtimeGameObjects.back());
+    qsizetype sizeAfter = runtimeGameObjects.size();
+
+    if (sizeBefore != sizeAfter) {
+        addObjectToObjectArea(runtimeGameObjects.back());
+    }
+
     setState(ApplicationState::START);
 }
 
