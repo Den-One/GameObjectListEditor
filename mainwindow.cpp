@@ -112,8 +112,6 @@ void MainWindow::on_actionSave_List_triggered() {
         writeGameObject(openFileToEdit, *it);
     }
 
-    undoStack.clear();
-    doStack.clear();
     ui->statusbar->removeWidget(statusBarLabel);
 
     setState(ApplicationState::VIEW_LIST);
@@ -181,6 +179,8 @@ void MainWindow::createFileList() {
     file.open(QIODevice::WriteOnly);
     file.close();
 
+    labelList->hideAll();
+
     setState(ApplicationState::CHANGE_LIST);
 }
 
@@ -200,6 +200,9 @@ void MainWindow::setState(ApplicationState newState) {
         editObjectForm->hideElements();
         labelList->hideAll();
 
+        undoStack.clear();
+        doStack.clear();
+
         break;
     }
     case ApplicationState::CREATE_OBJECT: {
@@ -215,6 +218,9 @@ void MainWindow::setState(ApplicationState newState) {
         editObjectForm->displayElements();
         labelList->hideAll();
 
+        undoStack.clear();
+        doStack.clear();
+
         break;
     }
     case ApplicationState::VIEW_LIST: {
@@ -229,6 +235,9 @@ void MainWindow::setState(ApplicationState newState) {
 
         editObjectForm->hideElements();
         labelList->hideAll();
+
+        undoStack.clear();
+        doStack.clear();
 
         break;
     }
