@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     , statusBarLabel(new QLabel("has unsaved changes"))
 {
     ui->setupUi(this);
+    ui->labelEditArea->setAlignment(Qt::AlignCenter);
     ui->scrollAreaForEdit->widget()->setLayout(editAreaLayout);
     ui->scrollAreaForTypes->widget()->setLayout(typeAreaLayout);
 
@@ -202,6 +203,11 @@ void MainWindow::setState(ApplicationState newState) {
         ui->pushButtonCreateType->setEnabled(true);
         ui->menubar->actions()[0]->setEnabled(true);
         ui->menubar->actions()[1]->setEnabled(false);
+        ui->labelEditArea->setText(ApplicationStateName::START);
+
+        QPalette palette = ui->scrollAreaForEdit->widget()->palette();
+        palette.setColor(QPalette::Window, QColorConstants::Svg::whitesmoke);
+        ui->scrollAreaForEdit->widget()->setPalette(palette);
 
         editObjectForm->hideElements();
         labelList->hideAll();
@@ -220,6 +226,11 @@ void MainWindow::setState(ApplicationState newState) {
         ui->pushButtonCreateType->setEnabled(false);
         ui->menubar->actions()[0]->setEnabled(false);
         ui->menubar->actions()[1]->setEnabled(false);
+        ui->labelEditArea->setText(ApplicationStateName::CREATE);
+
+        QPalette palette = ui->scrollAreaForEdit->widget()->palette();
+        palette.setColor(QPalette::Window, QColorConstants::Svg::whitesmoke);
+        ui->scrollAreaForEdit->widget()->setPalette(palette);
 
         editObjectForm->displayElements();
         labelList->hideAll();
@@ -238,6 +249,11 @@ void MainWindow::setState(ApplicationState newState) {
         ui->pushButtonCreateType->setEnabled(true);
         ui->menubar->actions()[0]->setEnabled(true);
         ui->menubar->actions()[1]->setEnabled(false);
+        ui->labelEditArea->setText(ApplicationStateName::VIEW_LIST);
+
+        QPalette palette = ui->scrollAreaForEdit->widget()->palette();
+        palette.setColor(QPalette::Window, QColorConstants::Svg::whitesmoke);
+        ui->scrollAreaForEdit->widget()->setPalette(palette);
 
         editObjectForm->hideElements();
         labelList->hideAll();
@@ -256,6 +272,11 @@ void MainWindow::setState(ApplicationState newState) {
         ui->pushButtonCreateType->setEnabled(false);
         ui->menubar->actions()[0]->setEnabled(true);
         ui->menubar->actions()[1]->setEnabled(true);
+        ui->labelEditArea->setText(ApplicationStateName::CHANGE_LIST);
+
+        QPalette palette = ui->scrollAreaForEdit->widget()->palette();
+        palette.setColor(QPalette::Window, Qt::white);
+        ui->scrollAreaForEdit->widget()->setPalette(palette);
 
         editObjectForm->hideElements();
 

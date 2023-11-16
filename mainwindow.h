@@ -27,6 +27,13 @@ enum class ApplicationState : unsigned char {
     START = 0, CREATE_OBJECT = 1, VIEW_LIST = 2, CHANGE_LIST = 3
 };
 
+struct ApplicationStateName {
+    static const inline QString START = "Edit Area - Start Mode";
+    static const inline QString CREATE = "Edit Area - Create Mode";
+    static const inline QString VIEW_LIST = "Edit Area - View List Mode";
+    static const inline QString CHANGE_LIST = "Edit Area - Edit List Mode";
+};
+
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
