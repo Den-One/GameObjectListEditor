@@ -3,28 +3,32 @@
 
 #include <QString>
 
-class Property final {
-private:
-    QString name_;
-    QString description_;
+namespace listEdit {
 
-public:
-    //Property() = delete;
+    class Property final {
+    private:
+        QString name_;
+        QString description_;
 
-    Property(QString&& name, QString&& description);
+    public:
+        //Property() = delete;
 
-    Property(const Property& rhs);
+        Property(QString&& name, QString&& description);
 
-    Property(Property&& rhs) noexcept;
+        Property(const Property& rhs);
 
-    Property& operator=(const Property& rhs);
+        Property(Property&& rhs) noexcept;
 
-    Property& operator=(Property&& rhs) noexcept;
+        Property& operator=(const Property& rhs);
 
-    QString getName();
+        Property& operator=(Property&& rhs) noexcept;
 
-    QString getDescription();
-};
+        QString getName();
+
+        QString getDescription();
+    };
+
+}; // namespace listEdit
 
 
 #endif // PROPERTY_H

@@ -5,26 +5,29 @@
 
 #include <QList>
 
-class GameObject final {
-private:
-    QString name_;
-    QVector<Property*> properties_; // it should be set, looks like it's unordered
+namespace listEdit {
 
-public:
-    GameObject() = delete;
+    class GameObject final {
+    private:
+        QString name_;
+        QVector<Property*> properties_;
 
-    GameObject(QString&& name);
+    public:
+        GameObject() = delete;
 
-    void insertProperty(QString&& name, QString&& description);
+        GameObject(QString&& name);
 
-    void removeProperty(const QString& name);
+        void insertProperty(QString&& name, QString&& description);
 
-    void removeAll();
+        void removeProperty(const QString& name);
 
-    QList<Property*> getProperties();
+        void removeAll();
 
-    QString getName();
-};
+        QList<Property*> getProperties();
 
+        QString getName();
+    };
+
+}; // namespace listEdit
 
 #endif // GAMEOBJECT_H

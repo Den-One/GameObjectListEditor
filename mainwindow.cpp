@@ -12,40 +12,40 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-    , editObjectForm(new EditObjectForm())
-    , creatorForm(new FileCreatorForm())
-    , editAreaLayout(new QVBoxLayout())
-    , typeAreaLayout(new QVBoxLayout())
-    , labelList(new LabelList())
-    , statusBarLabel(new QLabel("has unsaved changes"))
+    , ui_(new Ui::MainWindow)
+    , editObjectForm_(new EditObjectForm())
+    , creatorForm_(new FileCreatorForm())
+    , editAreaLayout_(new QVBoxLayout())
+    , typeAreaLayout_(new QVBoxLayout())
+    , labelList_(new LabelList())
+    , statusBarLabel_(new QLabel("has unsaved changes"))
 {
-    ui->setupUi(this);
-    ui->labelEditArea->setAlignment(Qt::AlignCenter);
-    ui->scrollAreaForEdit->widget()->setLayout(editAreaLayout);
-    ui->scrollAreaForTypes->widget()->setLayout(typeAreaLayout);
+    ui_->setupUi(this);
+    ui_->labelEditArea->setAlignment(Qt::AlignCenter);
+    ui_->scrollAreaForEdit->widget()->setLayout(editAreaLayout_);
+    ui_->scrollAreaForTypes->widget()->setLayout(typeAreaLayout_);
 
-    for (auto object : readGameObjects(QUrl(baseObjectsFileUrl))) {
+    for (auto object : readGameObjects(QUrl(baseObjectsFileUrl_))) {
         addObjectToObjectArea(object);
     }
 
-    connect(editObjectForm->getSaveButton(), &QPushButton::clicked, this, &MainWindow::saveEditObjectForm);
-    connect(creatorForm->getCreateButton(), &QPushButton::clicked, this, &MainWindow::createFileList);
+    connect(editObjectForm_->getSaveButton(), &QPushButton::clicked, this, &MainWindow::saveEditObjectForm);
+    connect(creatorForm_->getCreateButton(), &QPushButton::clicked, this, &MainWindow::createFileList);
 
-    editObjectForm->addOnLayoutHidden(ui->scrollAreaForEdit->widget()->layout());
-    labelList->setLayout(ui->scrollAreaForEdit->widget()->layout());
+    editObjectForm_->addOnLayoutHidden(ui_->scrollAreaForEdit->widget()->layout());
+    labelList_->setLayout(ui_->scrollAreaForEdit->widget()->layout());
 
     setState(ApplicationState::START);
 }
 
 MainWindow::~MainWindow() {
-    delete ui;
-    delete editObjectForm;
-    delete creatorForm;
-    delete editAreaLayout;
-    delete typeAreaLayout;
-    delete labelList;
-    delete statusBarLabel;
+    delete ui_;
+    delete editObjectForm_;
+    delete creatorForm_;
+    delete editAreaLayout_;
+    delete typeAreaLayout_;
+    delete labelList_;
+    delete statusBarLabel_;
 }
 
 void MainWindow::on_pushButtonCreateType_clicked() {
@@ -56,137 +56,137 @@ void MainWindow::addTypeButtonClicked() {
     QPushButton* gameObjectButton
         = qobject_cast<QPushButton*>(QObject::sender());
 
-    QVector<GameObject*> objects = readGameObjects(QUrl(baseObjectsFileUrl));
+    QVector<GameObject*> objects = readGameObjects(QUrl(baseObjectsFileUrl_));
 
-    objects += runtimeGameObjects;
+    objects += runtimeGameObjects_;
 
     for (auto& object : objects) {
         if (object->getName() == gameObjectButton->text()) {
-            labelList->displayLine(object->getName());
+            labelList_->displayLine(object->getName());
 
             for (auto& property : object->getProperties()) {
-                labelList->displayLine(
+                labelList_->displayLine(
                     property->getName() + " " + property->getDescription()
                 );
             }
 
-            labelList->displayLine("");
-            undoStack.push(object);
+            labelList_->displayLine("");
+            undoStack_.push(object);
         }
     }
 
-    ui->statusbar->addPermanentWidget(statusBarLabel);
-    doStack.clear();
+    ui_->statusbar->addPermanentWidget(statusBarLabel_);
+    doStack_.clear();
 
     setState(ApplicationState::CHANGE_LIST);
 }
 
 void MainWindow::on_actionOpen_List_triggered() {
-    openFileToEdit = QFileDialog::getOpenFileName(
+    openFileToEdit_ = QFileDialog::getOpenFileName(
         this,
         tr("Open List - Game Object List Editor"),
         tr(""),
         tr("Text files (*.txt)")
     );
 
-    if (openFileToEdit.isEmpty()) {
+    if (openFileToEdit_.isEmpty()) {
         return;
     }
 
-    if (!openFileToEdit.isValid()) {
+    if (!openFileToEdit_.isValid()) {
         throw std::runtime_error("Not valid file path");
     }
 
     setState(ApplicationState::VIEW_LIST);
 
-    displayGameObjects(readGameObjects(openFileToEdit));
+    displayGameObjects(readGameObjects(openFileToEdit_));
 }
 
 
 void MainWindow::on_actionNew_List_triggered() {
-    creatorForm->show();
+    creatorForm_->show();
 }
 
 void MainWindow::on_actionSave_List_triggered() {
     if (state_ == ApplicationState::CHANGE_LIST) {
-        auto list = undoStack.toList();
+        auto list = undoStack_.toList();
         for (auto it = list.begin(), itend = list.end(); it != itend; ++it) {
-            writeGameObject(openFileToEdit, *it);
+            writeGameObject(openFileToEdit_, *it);
         }
 
-        ui->statusbar->removeWidget(statusBarLabel);
+        ui_->statusbar->removeWidget(statusBarLabel_);
         setState(ApplicationState::VIEW_LIST);
-        displayGameObjects(readGameObjects(openFileToEdit));
+        displayGameObjects(readGameObjects(openFileToEdit_));
     }
 }
 
 
 void MainWindow::on_actionUndo_triggered() {
-    if (undoStack.empty()) {
+    if (undoStack_.empty()) {
         return;
     }
 
-    doStack.push(undoStack.pop());
+    doStack_.push(undoStack_.pop());
 
-    labelList->hideAll();
+    labelList_->hideAll();
 
-    displayGameObjects(readGameObjects(openFileToEdit) + undoStack);
+    displayGameObjects(readGameObjects(openFileToEdit_) + undoStack_);
 }
 
 
 void MainWindow::on_actionRedo_triggered() {
-    if (doStack.empty()) {
+    if (doStack_.empty()) {
         return;
     }
 
-    undoStack.push(doStack.pop());
+    undoStack_.push(doStack_.pop());
 
-    labelList->hideAll();
+    labelList_->hideAll();
 
-    displayGameObjects(readGameObjects(openFileToEdit) + undoStack);
+    displayGameObjects(readGameObjects(openFileToEdit_) + undoStack_);
 }
 
 
 void MainWindow::saveEditObjectForm() {
-    qsizetype sizeBefore = runtimeGameObjects.size();
-    editObjectForm->saveRuntimeObjectInfo(runtimeGameObjects);
-    qsizetype sizeAfter = runtimeGameObjects.size();
+    qsizetype sizeBefore = runtimeGameObjects_.size();
+    editObjectForm_->saveRuntimeObjectInfo(runtimeGameObjects_);
+    qsizetype sizeAfter = runtimeGameObjects_.size();
 
     if (sizeBefore != sizeAfter) {
-        addObjectToObjectArea(runtimeGameObjects.back());
+        addObjectToObjectArea(runtimeGameObjects_.back());
     }
 
     setState(ApplicationState::START);
 }
 
 void MainWindow::addObjectToObjectArea(GameObject* object) {
-    objectTypes.push_back(new QPushButton(object->getName()));
-    ui->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes.back());
-    connect(objectTypes.back(), &QPushButton::clicked, this, &MainWindow::addTypeButtonClicked);
+    objectTypes_.push_back(new QPushButton(object->getName()));
+    ui_->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes_.back());
+    connect(objectTypes_.back(), &QPushButton::clicked, this, &MainWindow::addTypeButtonClicked);
 }
 
 void MainWindow::displayGameObjects(QVector<GameObject*>&& objects) {
     for (auto object : objects) {
-        labelList->displayLine(object->getName());
+        labelList_->displayLine(object->getName());
         for (auto property : object->getProperties()) {
-            labelList->displayLine(property->getName() + property->getDescription());
+            labelList_->displayLine(property->getName() + property->getDescription());
         }
-        labelList->displayLine("");
+        labelList_->displayLine("");
     }
 }
 
 void MainWindow::createFileList() {
-    QString fileName = creatorForm->getFileName();
-    creatorForm->hide();
+    QString fileName = creatorForm_->getFileName();
+    creatorForm_->hide();
 
     QString dir = QFileDialog::getExistingDirectory(this, "Create List - Game Object List Editor");
-    openFileToEdit = QDir::cleanPath(dir + "\\" + fileName);
+    openFileToEdit_ = QDir::cleanPath(dir + "\\" + fileName);
 
-    QFile file(openFileToEdit.path());
+    QFile file(openFileToEdit_.path());
     file.open(QIODevice::WriteOnly);
     file.close();
 
-    labelList->hideAll();
+    labelList_->hideAll();
 
     setState(ApplicationState::CHANGE_LIST);
 }
@@ -196,89 +196,89 @@ void MainWindow::setState(ApplicationState newState) {
     switch (state_) {
     case ApplicationState::START: {
 
-        foreach (auto& button, objectTypes) {
+        foreach (auto& button, objectTypes_) {
             button->setEnabled(false);
         }
 
-        ui->pushButtonCreateType->setEnabled(true);
-        ui->menubar->actions()[0]->setEnabled(true);
-        ui->menubar->actions()[1]->setEnabled(false);
-        ui->labelEditArea->setText(ApplicationStateName::START);
+        ui_->pushButtonCreateType->setEnabled(true);
+        ui_->menubar->actions()[0]->setEnabled(true);
+        ui_->menubar->actions()[1]->setEnabled(false);
+        ui_->labelEditArea->setText(ApplicationStateName::START);
 
-        QPalette palette = ui->scrollAreaForEdit->widget()->palette();
+        QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
         palette.setColor(QPalette::Window, QColorConstants::Svg::whitesmoke);
-        ui->scrollAreaForEdit->widget()->setPalette(palette);
+        ui_->scrollAreaForEdit->widget()->setPalette(palette);
 
-        editObjectForm->hideElements();
-        labelList->hideAll();
+        editObjectForm_->hideElements();
+        labelList_->hideAll();
 
-        undoStack.clear();
-        doStack.clear();
+        undoStack_.clear();
+        doStack_.clear();
 
         break;
     }
     case ApplicationState::CREATE_OBJECT: {
 
-        foreach (auto& button, objectTypes) {
+        foreach (auto& button, objectTypes_) {
             button->setEnabled(false);
         }
 
-        ui->pushButtonCreateType->setEnabled(false);
-        ui->menubar->actions()[0]->setEnabled(false);
-        ui->menubar->actions()[1]->setEnabled(false);
-        ui->labelEditArea->setText(ApplicationStateName::CREATE);
+        ui_->pushButtonCreateType->setEnabled(false);
+        ui_->menubar->actions()[0]->setEnabled(false);
+        ui_->menubar->actions()[1]->setEnabled(false);
+        ui_->labelEditArea->setText(ApplicationStateName::CREATE);
 
-        QPalette palette = ui->scrollAreaForEdit->widget()->palette();
+        QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
         palette.setColor(QPalette::Window, QColorConstants::Svg::whitesmoke);
-        ui->scrollAreaForEdit->widget()->setPalette(palette);
+        ui_->scrollAreaForEdit->widget()->setPalette(palette);
 
-        editObjectForm->displayElements();
-        labelList->hideAll();
+        editObjectForm_->displayElements();
+        labelList_->hideAll();
 
-        undoStack.clear();
-        doStack.clear();
+        undoStack_.clear();
+        doStack_.clear();
 
         break;
     }
     case ApplicationState::VIEW_LIST: {
 
-        foreach (auto& button, objectTypes) {
+        foreach (auto& button, objectTypes_) {
             button->setEnabled(true);
         }
 
-        ui->pushButtonCreateType->setEnabled(true);
-        ui->menubar->actions()[0]->setEnabled(true);
-        ui->menubar->actions()[1]->setEnabled(false);
-        ui->labelEditArea->setText(ApplicationStateName::VIEW_LIST);
+        ui_->pushButtonCreateType->setEnabled(true);
+        ui_->menubar->actions()[0]->setEnabled(true);
+        ui_->menubar->actions()[1]->setEnabled(false);
+        ui_->labelEditArea->setText(ApplicationStateName::VIEW_LIST);
 
-        QPalette palette = ui->scrollAreaForEdit->widget()->palette();
+        QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
         palette.setColor(QPalette::Window, QColorConstants::Svg::whitesmoke);
-        ui->scrollAreaForEdit->widget()->setPalette(palette);
+        ui_->scrollAreaForEdit->widget()->setPalette(palette);
 
-        editObjectForm->hideElements();
-        labelList->hideAll();
+        editObjectForm_->hideElements();
+        labelList_->hideAll();
 
-        undoStack.clear();
-        doStack.clear();
+        undoStack_.clear();
+        doStack_.clear();
 
         break;
     }
     case ApplicationState::CHANGE_LIST: {
 
-        foreach (auto& button, objectTypes) {
+        foreach (auto& button, objectTypes_) {
             button->setEnabled(true);
         }
 
-        ui->pushButtonCreateType->setEnabled(false);
-        ui->menubar->actions()[0]->setEnabled(true);
-        ui->menubar->actions()[1]->setEnabled(true);
-        ui->labelEditArea->setText(ApplicationStateName::CHANGE_LIST);
+        ui_->pushButtonCreateType->setEnabled(false);
+        ui_->menubar->actions()[0]->setEnabled(true);
+        ui_->menubar->actions()[1]->setEnabled(true);
+        ui_->labelEditArea->setText(ApplicationStateName::CHANGE_LIST);
 
-        QPalette palette = ui->scrollAreaForEdit->widget()->palette();
+        QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
         palette.setColor(QPalette::Window, Qt::white);
-        ui->scrollAreaForEdit->widget()->setPalette(palette);
+        ui_->scrollAreaForEdit->widget()->setPalette(palette);
 
-        editObjectForm->hideElements();
+        editObjectForm_->hideElements();
 
         break;
     }
