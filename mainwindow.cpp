@@ -3,6 +3,7 @@
 #include "ui_mainwindow.h"
 
 #include <QGroupBox>
+#include <QActionGroup>
 #include <QScrollArea>
 #include <QFrame>
 #include <QVector>
@@ -24,15 +25,27 @@ MainWindow::MainWindow(QWidget *parent)
     ui_->labelEditArea->setAlignment(Qt::AlignCenter);
     ui_->scrollAreaForEdit->widget()->setLayout(editAreaLayout_);
     ui_->scrollAreaForTypes->widget()->setLayout(typeAreaLayout_);
+    ui_->scrollAreaForTypes->widget()->layout()->setAlignment(Qt::AlignTop);
+    ui_->scrollAreaForEdit->widget()->layout()->setAlignment(Qt::AlignTop);
 
     for (auto object : readGameObjects(QUrl(baseObjectsFileUrl_))) {
         addObjectToObjectArea(object);
     }
 
-    connect(editObjectForm_->getSaveButton(), &QPushButton::clicked, this, &MainWindow::saveEditObjectForm);
-    connect(creatorForm_->getCreateButton(), &QPushButton::clicked, this, &MainWindow::createFileList);
+    connect(
+        editObjectForm_->getSaveButton(), &QPushButton::clicked,
+        this, &MainWindow::saveEditObjectForm
+    );
 
-    editObjectForm_->addOnLayoutHidden(ui_->scrollAreaForEdit->widget()->layout());
+    connect(
+        creatorForm_->getCreateButton(), &QPushButton::clicked,
+        this, &MainWindow::createFileList
+    );
+
+    editObjectForm_->addOnLayoutHidden(
+        ui_->scrollAreaForEdit->widget()->layout()
+    );
+
     labelList_->setLayout(ui_->scrollAreaForEdit->widget()->layout());
 
     setState(ApplicationState::START);
@@ -162,14 +175,20 @@ void MainWindow::saveEditObjectForm() {
 void MainWindow::addObjectToObjectArea(GameObject* object) {
     objectTypes_.push_back(new QPushButton(object->getName()));
     ui_->scrollAreaForTypes->widget()->layout()->addWidget(objectTypes_.back());
-    connect(objectTypes_.back(), &QPushButton::clicked, this, &MainWindow::addTypeButtonClicked);
+
+    connect(
+        objectTypes_.back(), &QPushButton::clicked,
+        this, &MainWindow::addTypeButtonClicked
+    );
 }
 
 void MainWindow::displayGameObjects(QVector<GameObject*>&& objects) {
     for (auto object : objects) {
         labelList_->displayLine(object->getName());
         for (auto property : object->getProperties()) {
-            labelList_->displayLine(property->getName() + property->getDescription());
+            labelList_->displayLine(
+                property->getName() + property->getDescription()
+            );
         }
         labelList_->displayLine("");
     }
@@ -179,7 +198,10 @@ void MainWindow::createFileList() {
     QString fileName = creatorForm_->getFileName();
     creatorForm_->hide();
 
-    QString dir = QFileDialog::getExistingDirectory(this, "Create List - Game Object List Editor");
+    QString dir = QFileDialog::getExistingDirectory(
+        this, "Create List - Game Object List Editor"
+    );
+
     openFileToEdit_ = QDir::cleanPath(dir + "\\" + fileName);
 
     QFile file(openFileToEdit_.path());
@@ -201,8 +223,8 @@ void MainWindow::setState(ApplicationState newState) {
         }
 
         ui_->pushButtonCreateType->setEnabled(true);
-        ui_->menubar->actions()[0]->setEnabled(true);
-        ui_->menubar->actions()[1]->setEnabled(false);
+        ui_->menubar->actions().at(0)->setEnabled(true);
+        ui_->menubar->actions().at(1)->setEnabled(false);
         ui_->labelEditArea->setText(ApplicationStateName::START);
 
         QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
@@ -224,8 +246,8 @@ void MainWindow::setState(ApplicationState newState) {
         }
 
         ui_->pushButtonCreateType->setEnabled(false);
-        ui_->menubar->actions()[0]->setEnabled(false);
-        ui_->menubar->actions()[1]->setEnabled(false);
+        ui_->menubar->actions().at(0)->setEnabled(false);
+        ui_->menubar->actions().at(1)->setEnabled(false);
         ui_->labelEditArea->setText(ApplicationStateName::CREATE);
 
         QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
@@ -247,8 +269,8 @@ void MainWindow::setState(ApplicationState newState) {
         }
 
         ui_->pushButtonCreateType->setEnabled(true);
-        ui_->menubar->actions()[0]->setEnabled(true);
-        ui_->menubar->actions()[1]->setEnabled(false);
+        ui_->menubar->actions().at(0)->setEnabled(true);
+        ui_->menubar->actions().at(1)->setEnabled(false);
         ui_->labelEditArea->setText(ApplicationStateName::VIEW_LIST);
 
         QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
@@ -270,8 +292,8 @@ void MainWindow::setState(ApplicationState newState) {
         }
 
         ui_->pushButtonCreateType->setEnabled(false);
-        ui_->menubar->actions()[0]->setEnabled(true);
-        ui_->menubar->actions()[1]->setEnabled(true);
+        ui_->menubar->actions().at(0)->setEnabled(true);
+        ui_->menubar->actions().at(1)->setEnabled(true);
         ui_->labelEditArea->setText(ApplicationStateName::CHANGE_LIST);
 
         QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
