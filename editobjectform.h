@@ -11,27 +11,36 @@
 
 using listEdit::GameObject;
 
-class EditObjectForm final {
+class EditObjectForm final : public QObject {
+    Q_OBJECT
+
 private:
     QLabel*    objectNameLabel_;
     QLineEdit* objectNameLineEdit_;
 
-    QLabel*    property1NameLabel_;
-    QLineEdit* property1LineEdit_;
-    QLabel*    property1DescLabel_;
-    QTextEdit* property1TextEdit_;
-
-    QLabel*    property2NameLabel_;
-    QLineEdit* property2LineEdit_;
-    QLabel*    property2DescLabel_;
-    QTextEdit* property2TextEdit_;
-
     QPushButton* saveChangesButton_;
+    QPushButton* addPropertyButton_;
 
+    QList<QLabel*> nameLabelList_;
+    QList<QLineEdit*> lineEditList_;
+    QList<QLabel*> descLabelList_;
+    QList<QTextEdit*> descTextEditList_;
+
+    QLayout* layout_;
+
+    bool isWidgetsAdded = false;
     bool isDisplayed = true;
 
+private slots:
+    void addPropertyForm();
+
+private:
+    void clearPropertyForms();
+
 public:
-    EditObjectForm();
+    EditObjectForm() = delete;
+
+    EditObjectForm(QObject *parent = nullptr);
 
     ~EditObjectForm();
 
@@ -43,7 +52,11 @@ public:
 
     void saveRuntimeObjectInfo(QVector<GameObject*>& object);
 
-    QPushButton* getSaveButton();
+    QPushButton* getSaveButton() const;
+
+    QString getObjectName() const;
+
+    qsizetype countProperties() const;
 };
 
 

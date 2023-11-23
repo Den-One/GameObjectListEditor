@@ -25,7 +25,7 @@ namespace listEdit {
 
         QList<Property*> getProperties();
 
-        QString getName();
+        QString getName() const;
     };
 
 }; // namespace listEdit

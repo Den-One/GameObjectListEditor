@@ -4,17 +4,17 @@
 
 #include <QGroupBox>
 #include <QActionGroup>
-#include <QScrollArea>
 #include <QFrame>
 #include <QVector>
 #include <QFileDialog>
+#include <QMessageBox>
 
 // We have no time, done better than perfect.
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui_(new Ui::MainWindow)
-    , editObjectForm_(new EditObjectForm())
+    , editObjectForm_(new EditObjectForm(this))
     , creatorForm_(new FileCreatorForm())
     , editAreaLayout_(new QVBoxLayout())
     , typeAreaLayout_(new QVBoxLayout())
@@ -161,6 +161,29 @@ void MainWindow::on_actionRedo_triggered() {
 
 
 void MainWindow::saveEditObjectForm() {
+    if (editObjectForm_->countProperties() < 1) {
+        setState(ApplicationState::START);
+        return;
+    }
+
+    const QString objectName = editObjectForm_->getObjectName().replace(" ", "");
+    auto result = std::find_if(objectTypes_.begin(), objectTypes_.end(),
+                 [&objectName](auto& it) { return it->text() == objectName; }
+    );
+
+    if (result != objectTypes_.end()) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Game Object List Editor");
+        msgBox.setText("An object with the same name is already in the list!\n"
+                       "Please, choose another one.");
+
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        msgBox.exec();
+
+        return;
+    }
+
     qsizetype sizeBefore = runtimeGameObjects_.size();
     editObjectForm_->saveRuntimeObjectInfo(runtimeGameObjects_);
     qsizetype sizeAfter = runtimeGameObjects_.size();
@@ -213,6 +236,12 @@ void MainWindow::createFileList() {
     setState(ApplicationState::CHANGE_LIST);
 }
 
+void MainWindow::setColor(QScrollArea* scrollArea, const QColor color) {
+    QPalette palette = scrollArea->widget()->palette();
+    palette.setColor(QPalette::Window, color);
+    scrollArea->widget()->setPalette(palette);
+}
+
 void MainWindow::setState(ApplicationState newState) {
     state_ = newState;
     switch (state_) {
@@ -227,9 +256,7 @@ void MainWindow::setState(ApplicationState newState) {
         ui_->menubar->actions().at(1)->setEnabled(false);
         ui_->labelEditArea->setText(ApplicationStateName::START);
 
-        QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
-        palette.setColor(QPalette::Window, QColorConstants::Svg::whitesmoke);
-        ui_->scrollAreaForEdit->widget()->setPalette(palette);
+        setColor(ui_->scrollAreaForEdit, QColorConstants::Svg::whitesmoke);
 
         editObjectForm_->hideElements();
         labelList_->hideAll();
@@ -250,9 +277,7 @@ void MainWindow::setState(ApplicationState newState) {
         ui_->menubar->actions().at(1)->setEnabled(false);
         ui_->labelEditArea->setText(ApplicationStateName::CREATE);
 
-        QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
-        palette.setColor(QPalette::Window, QColorConstants::Svg::whitesmoke);
-        ui_->scrollAreaForEdit->widget()->setPalette(palette);
+        setColor(ui_->scrollAreaForEdit, QColorConstants::Svg::whitesmoke);
 
         editObjectForm_->displayElements();
         labelList_->hideAll();
@@ -273,9 +298,7 @@ void MainWindow::setState(ApplicationState newState) {
         ui_->menubar->actions().at(1)->setEnabled(false);
         ui_->labelEditArea->setText(ApplicationStateName::VIEW_LIST);
 
-        QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
-        palette.setColor(QPalette::Window, QColorConstants::Svg::whitesmoke);
-        ui_->scrollAreaForEdit->widget()->setPalette(palette);
+        setColor(ui_->scrollAreaForEdit, QColorConstants::Svg::whitesmoke);
 
         editObjectForm_->hideElements();
         labelList_->hideAll();
@@ -296,13 +319,11 @@ void MainWindow::setState(ApplicationState newState) {
         ui_->menubar->actions().at(1)->setEnabled(true);
         ui_->labelEditArea->setText(ApplicationStateName::CHANGE_LIST);
 
-        QPalette palette = ui_->scrollAreaForEdit->widget()->palette();
-        palette.setColor(QPalette::Window, Qt::white);
-        ui_->scrollAreaForEdit->widget()->setPalette(palette);
+        setColor(ui_->scrollAreaForEdit, QColorConstants::Svg::white);
 
         editObjectForm_->hideElements();
 
         break;
     }
-    }
+    } // switch
 }

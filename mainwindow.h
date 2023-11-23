@@ -14,6 +14,7 @@
 #include <QVBoxLayout>
 #include <QLayout>
 #include <QStack>
+#include <QScrollArea>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -69,6 +70,8 @@ private:
     void addObjectToObjectArea(GameObject* object);
 
     void displayGameObjects(QVector<GameObject*>&& objects);
+
+    void setColor(QScrollArea* scrollArea, const QColor color);
 
 private:
     Ui::MainWindow* ui_;

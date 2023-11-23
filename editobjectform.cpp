@@ -1,70 +1,73 @@
 #include "editobjectform.h"
 
 
-EditObjectForm::EditObjectForm() :
+EditObjectForm::EditObjectForm(QObject* parent) :
+    QObject             (parent),
     objectNameLabel_    (new QLabel("Object name:")),
     objectNameLineEdit_ (new QLineEdit()),
-    property1NameLabel_ (new QLabel("Property #1 name:")),
-    property1LineEdit_  (new QLineEdit()),
-    property1DescLabel_ (new QLabel("Property #1 description:")),
-    property1TextEdit_  (new QTextEdit()),
-    property2NameLabel_ (new QLabel("Property #1 name:")),
-    property2LineEdit_  (new QLineEdit()),
-    property2DescLabel_ (new QLabel("Property #1 description:")),
-    property2TextEdit_  (new QTextEdit()),
-    saveChangesButton_  (new QPushButton("Save or quit"))
+    saveChangesButton_  (new QPushButton("Save or quit")),
+    addPropertyButton_  (new QPushButton("+1 Property"))
 {
+    connect(
+        addPropertyButton_, &QPushButton::clicked,
+        this, &EditObjectForm::addPropertyForm
+    );
 }
 
 EditObjectForm::~EditObjectForm() {
     delete objectNameLabel_;
     delete objectNameLineEdit_;
-    delete property1NameLabel_;
-    delete property1LineEdit_;
-    delete property1DescLabel_;
-    delete property1TextEdit_;
-    delete property2NameLabel_;
-    delete property2LineEdit_;
-    delete property2DescLabel_;
-    delete property2TextEdit_;
     delete saveChangesButton_;
+    delete addPropertyButton_;
 }
 
 void EditObjectForm::addOnLayoutHidden(QLayout* layout) {
-    layout->addWidget(objectNameLabel_);
-    layout->addWidget(objectNameLineEdit_);
-    layout->addWidget(property1NameLabel_);
-    layout->addWidget(property1LineEdit_);
-    layout->addWidget(property1DescLabel_);
-    layout->addWidget(property1TextEdit_);
-    layout->addWidget(property2NameLabel_);
-    layout->addWidget(property2LineEdit_);
-    layout->addWidget(property2DescLabel_);
-    layout->addWidget(property2TextEdit_);
-    layout->addWidget(saveChangesButton_);
+    layout_ = layout;
+
+    if (!isWidgetsAdded) {
+        layout_->addWidget(objectNameLabel_);
+        layout_->addWidget(objectNameLineEdit_);
+        layout_->addWidget(saveChangesButton_);
+        layout_->addWidget(addPropertyButton_);
+
+        isWidgetsAdded = true;
+    }
 
     hideElements();
+}
+
+void EditObjectForm::addPropertyForm() {
+    nameLabelList_.append(new QLabel("Property name:"));
+    lineEditList_.append(new QLineEdit());
+    descLabelList_.append(new QLabel("Property description:"));
+    descTextEditList_.append(new QTextEdit());
+
+    layout_->addWidget(nameLabelList_.back());
+    layout_->addWidget(lineEditList_.back());
+    layout_->addWidget(descLabelList_.back());
+    layout_->addWidget(descTextEditList_.back());
+}
+
+void EditObjectForm::clearPropertyForms() {
+    for (qsizetype i = 0; i < lineEditList_.size(); ++i) {
+        nameLabelList_[i]->deleteLater();
+        lineEditList_[i]->deleteLater();
+        descLabelList_[i]->deleteLater();
+        descTextEditList_[i]->deleteLater();
+    }
+
+    nameLabelList_.clear();
+    lineEditList_.clear();
+    descLabelList_.clear();
+    descTextEditList_.clear();
 }
 
 void EditObjectForm::displayElements() {
     if (!isDisplayed) {
         objectNameLabel_->setVisible(true);
         objectNameLineEdit_->setVisible(true);
-        property1NameLabel_->setVisible(true);
-        property1LineEdit_->setVisible(true);
-        property1DescLabel_->setVisible(true);
-        property1TextEdit_->setVisible(true);
-        property2NameLabel_->setVisible(true);
-        property2LineEdit_->setVisible(true);
-        property2DescLabel_->setVisible(true);
-        property2TextEdit_->setVisible(true);
         saveChangesButton_->setVisible(true);
-
-        objectNameLineEdit_->clear();
-        property1LineEdit_->clear();
-        property1TextEdit_->clear();
-        property2LineEdit_->clear();
-        property2TextEdit_->clear();
+        addPropertyButton_->setVisible(true);
 
         isDisplayed = true;
     }
@@ -74,42 +77,40 @@ void EditObjectForm::hideElements() {
     if (isDisplayed) {
         objectNameLabel_->setVisible(false);
         objectNameLineEdit_->setVisible(false);
-        property1NameLabel_->setVisible(false);
-        property1LineEdit_->setVisible(false);
-        property1DescLabel_->setVisible(false);
-        property1TextEdit_->setVisible(false);
-        property2NameLabel_->setVisible(false);
-        property2LineEdit_->setVisible(false);
-        property2DescLabel_->setVisible(false);
-        property2TextEdit_->setVisible(false);
         saveChangesButton_->setVisible(false);
+        addPropertyButton_->setVisible(false);
 
         isDisplayed = false;
     }
 }
 
 void EditObjectForm::saveRuntimeObjectInfo(QVector<GameObject*>& object) {
-    if (objectNameLineEdit_->text() != "") {
+    if (objectNameLineEdit_->text() != "" && lineEditList_.size() > 0 && lineEditList_[0]->text() != "") {
         objectNameLineEdit_->text().replace(" ", "");
         GameObject* newObject = new GameObject(objectNameLineEdit_->text());
-        if (property1LineEdit_->text() != "") {
-            property1LineEdit_->text().replace(" ", "");
-            newObject->insertProperty(
-                property1LineEdit_->text(), property1TextEdit_->toPlainText()
-                );
-        }
 
-        if (property2LineEdit_->text() != "") {
-            property2LineEdit_->text().replace(" ", "");
-            newObject->insertProperty(
-                property2LineEdit_->text(), property2TextEdit_->toPlainText()
+        for (qsizetype i = 0; i < lineEditList_.size(); ++i) {
+            if (lineEditList_[i]->text() != "" && descTextEditList_[i]->toPlainText() != "") {
+                newObject->insertProperty(
+                    lineEditList_[i]->text(), descTextEditList_[i]->toPlainText()
                 );
+            }
         }
 
         object.push_back(newObject);
     }
+
+    clearPropertyForms();
 }
 
-QPushButton* EditObjectForm::getSaveButton() {
+QPushButton* EditObjectForm::getSaveButton() const {
     return saveChangesButton_;
+}
+
+QString EditObjectForm::getObjectName() const {
+    return objectNameLineEdit_->text();
+}
+
+qsizetype EditObjectForm::countProperties() const {
+    return lineEditList_.count();
 }

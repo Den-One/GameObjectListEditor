@@ -34,7 +34,7 @@ namespace listEdit {
     }
 
 
-    QString GameObject::getName() {
+    QString GameObject::getName() const {
         return name_;
     }
 

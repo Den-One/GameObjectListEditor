@@ -23,9 +23,9 @@ namespace listEdit {
 
         Property& operator=(Property&& rhs) noexcept;
 
-        QString getName();
+        QString getName() const;
 
-        QString getDescription();
+        QString getDescription() const;
     };
 
 }; // namespace listEdit

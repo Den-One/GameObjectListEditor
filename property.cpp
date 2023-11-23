@@ -21,17 +21,11 @@ namespace listEdit {
     }
 
 
-    Property& Property::operator=(const Property& rhs) {
+    Property& Property::operator=(const Property& rhs)
+    {
         if (this != &rhs) {
-            std::copy(
-                rhs.name_.begin(), rhs.name_.end(), std::back_inserter(name_)
-                );
-
-            std::copy(
-                rhs.description_.begin(),
-                rhs.description_.end(),
-                std::back_inserter(description_)
-                );
+            name_ = rhs.name_;
+            description_ = rhs.description_;
         }
         return *this;
     }
@@ -46,12 +40,12 @@ namespace listEdit {
     }
 
 
-    QString Property::getName() {
+    QString Property::getName() const {
         return name_;
     }
 
 
-    QString Property::getDescription() {
+    QString Property::getDescription() const {
         return description_;
     }
 
