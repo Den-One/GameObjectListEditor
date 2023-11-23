@@ -225,6 +225,11 @@ void MainWindow::createFileList() {
         this, "Create List - Game Object List Editor"
     );
 
+    if (dir == "") {
+        setState(ApplicationState::START);
+        return;
+    }
+
     openFileToEdit_ = QDir::cleanPath(dir + "\\" + fileName);
 
     QFile file(openFileToEdit_.path());
